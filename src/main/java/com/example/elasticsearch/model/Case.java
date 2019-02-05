@@ -18,9 +18,9 @@ public class Case {
     String caseID;
     String name;
     String text;
-    @GeoPointField
-    GeoPoint location;
     @Field(type = FieldType.Nested, includeInParent = true)
     ArrayList<Task> tasks;
+    @Field(type = FieldType.Nested, includeInParent = true)
+    Address address;
 
 }
