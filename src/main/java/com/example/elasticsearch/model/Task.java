@@ -1,13 +1,14 @@
 package com.example.elasticsearch.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
-import org.elasticsearch.search.DocValueFormat;
+import org.springframework.data.elasticsearch.annotations.DateFormat;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -16,12 +17,18 @@ import java.util.Date;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = BarTask.class, name = "bar"),
-        @JsonSubTypes.Type(value = FooTask.class, name = "foo"),
+        @JsonSubTypes.Type(value = LetterTask.class, name = "letter"),
+        @JsonSubTypes.Type(value = VisitTask.class, name = "visit"),
         @JsonSubTypes.Type(value = CreateTask.class, name = "create")
 })
 public abstract class Task {
-
-    String name;
-    String datum;
+    String comment;
+    @Field(
+            type = FieldType.Date,
+            store = true,
+            format = DateFormat.custom, pattern = "yyyy-MM-dd HH:mm:ss"
+    )
+    Date created;
+    String advisor;
+    String advisorID;
 }

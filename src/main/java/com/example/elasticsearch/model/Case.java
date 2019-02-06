@@ -15,12 +15,14 @@ import java.util.ArrayList;
 public class Case {
 
     @Id
-    String caseID;
-    String name;
+    String id;
+    String title;
     String text;
     @Field(type = FieldType.Nested, includeInParent = true)
-    ArrayList<Task> tasks;
+    ArrayList<Task> tasks = new ArrayList<>();
     @Field(type = FieldType.Nested, includeInParent = true)
     Address address;
+    @Field(type = FieldType.Nested, includeInParent = true)
+    Person owner;
 
 }

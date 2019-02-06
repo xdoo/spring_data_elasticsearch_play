@@ -3,6 +3,6 @@ package com.example.elasticsearch.model;
 import lombok.Data;
 
 @Data
-public class BarTask extends Task {
-    String bar;
+public class LetterTask extends Task {
+    String urlToCopy;
 }

@@ -16,8 +16,8 @@ public class CaseService {
 
     public Case saveSomething(String id, String name) {
         Case aCase = new Case();
-        aCase.setCaseID(id);
-        aCase.setName(name);
+        aCase.setId(id);
+        aCase.setTitle(name);
         return this.caseRepository.save(aCase);
     }
 
@@ -27,7 +27,7 @@ public class CaseService {
 
     public Case saveOne(String name) {
         Case aCase = new Case();
-        aCase.setName(name);
+        aCase.setTitle(name);
         Case save = this.caseRepository.save(aCase);
         // hack um die id zu speichern
         return this.caseRepository.save(save);

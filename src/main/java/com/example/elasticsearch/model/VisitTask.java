@@ -3,6 +3,6 @@ package com.example.elasticsearch.model;
 import lombok.Data;
 
 @Data
-public class FooTask extends Task {
+public class VisitTask extends Task {
     String foo;
 }
