@@ -56,12 +56,16 @@ public class ElasticsearchApplicationTests {
     }
 
     @Test
+    public void testCreateAdvisors() {
+
+    }
+
+    @Test
     public void testCreateMany() throws Exception {
         int cnt = 0;
 	    for(List<Double> point : this.getSomePoints()) {
             String id = RandomStringUtils.randomAlphanumeric(35).toUpperCase();
-            Person owner = new Person(this.lorem.getFirstName(), this.lorem.getLastName());
-
+            Owner owner = new Owner(this.lorem.getFirstName(), this.lorem.getLastName());
 
             Case aCase = new Case();
             aCase.setId(id);
@@ -72,7 +76,7 @@ public class ElasticsearchApplicationTests {
 
             // add a create task
             CreateTask createTask = new CreateTask();
-//            createTask.setCreated("2019-02-05 13:53:00");
+            createTask.setCreated(new DateTime().toDate());
             createTask.setComment("Fall wurde eröffnet.");
 
             aCase.getTasks().add(createTask);
@@ -102,7 +106,7 @@ public class ElasticsearchApplicationTests {
         visitTask.setComment("My fancy Foo Task!");
         visitTask.setFoo("yo - foo");
 //        visitTask.setCreated("2019-02-05 13:53:00");
-        visitTask.setCreated(new Date());
+        visitTask.setCreated(new DateTime().toDate());
 
         LetterTask letterTask = new LetterTask();
         letterTask.setComment("Ok - Brief gesendet");

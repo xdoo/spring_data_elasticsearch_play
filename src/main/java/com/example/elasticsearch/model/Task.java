@@ -23,11 +23,8 @@ import java.util.Date;
 })
 public abstract class Task {
     String comment;
-    @Field(
-            type = FieldType.Date,
-            store = true,
-            format = DateFormat.custom, pattern = "yyyy-MM-dd HH:mm:ss"
-    )
+    @Field( type = FieldType.Date, format = DateFormat.date_time_no_millis)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZZ")
     Date created;
     String advisor;
     String advisorID;
