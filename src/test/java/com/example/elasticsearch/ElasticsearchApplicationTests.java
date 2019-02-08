@@ -1,6 +1,7 @@
 package com.example.elasticsearch;
 
 import com.example.elasticsearch.model.*;
+import com.example.elasticsearch.repositories.AdvisorRepository;
 import com.example.elasticsearch.repositories.CaseRepository;
 import com.example.elasticsearch.services.CaseService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -36,13 +37,25 @@ public class ElasticsearchApplicationTests {
 	CaseService service;
 
 	@Autowired
-    CaseRepository repository;
+    CaseRepository caseRepository;
+
+	@Autowired
+    AdvisorRepository advisorRepository;
 
 	@Autowired
     GeoApiContext geoApiContext;
 
 	@Autowired
     ObjectMapper objectMapper;
+
+	private final List advisorIds = Lists.newArrayList(
+	        "FGSTREUDHISJIWKSO",
+            "FGSTREUDHISJIWKSO",
+            "LOIDBGETJHSZUJEUS",
+            "LOSGTWRASFDTSGWTS",
+            "LOSGTWRASFDTSGWTS",
+            "LOSGTWRASFDTSGWTS"
+    );
 
 	private final Lorem lorem = LoremIpsum.getInstance();
     private final RandomNameGenerator rnd = new RandomNameGenerator(0);
@@ -57,7 +70,37 @@ public class ElasticsearchApplicationTests {
 
     @Test
     public void testCreateAdvisors() {
+        Advisor advisor1 = new Advisor();
+        advisor1.setFirstname("Hans");
+        advisor1.setLastname("Müller");
+        advisor1.setShorthandSymbol("HMÜ");
+        advisor1.setId("FGSTREUDHISJIWKSO");
 
+        this.advisorRepository.save(advisor1);
+
+        Advisor advisor2 = new Advisor();
+        advisor2.setFirstname("Andrea");
+        advisor2.setLastname("Schmidt");
+        advisor2.setShorthandSymbol("ASC");
+        advisor2.setId("LOIDBGETJHSZUJEUS");
+
+        this.advisorRepository.save(advisor2);
+
+        Advisor advisor3 = new Advisor();
+        advisor3.setFirstname("Paul");
+        advisor3.setLastname("Meier");
+        advisor3.setShorthandSymbol("PME");
+        advisor3.setId("LOSGTWRASFDTSGWTS");
+
+        this.advisorRepository.save(advisor3);
+    }
+
+    public void testCreateOwners() {
+        ArrayList<double[]> ownerPoints = this.getOwnerPoints();
+        for(double[] op : ownerPoints) {
+            String id = RandomStringUtils.randomAlphanumeric(35).toUpperCase();
+
+        }
     }
 
     @Test
@@ -82,7 +125,7 @@ public class ElasticsearchApplicationTests {
             aCase.getTasks().add(createTask);
 
 
-            this.repository.save(aCase);
+            this.caseRepository.save(aCase);
 
             cnt++;
             log.info("counter: {}", cnt);
@@ -117,12 +160,12 @@ public class ElasticsearchApplicationTests {
         aCase1.setTasks(tasks);
         this.service.updateIt(aCase1);
 
-        Optional<Case> optionalCase = this.repository.findById(id);
+        Optional<Case> optionalCase = this.caseRepository.findById(id);
         if(optionalCase.isPresent()) {
             log.info("gefunden: {}", optionalCase.get().getTitle());
         }
 
-//        this.repository.deleteById(id);
+//        this.caseRepository.deleteById(id);
 
     }
 
@@ -168,6 +211,17 @@ public class ElasticsearchApplicationTests {
 	    return address;
     }
 
+    private Owner createOwner(String id, double[] point) {
+        Owner owner = new Owner();
+
+        owner.setId(id);
+        owner.setFirstname(this.lorem.getFirstName());
+        owner.setLastname(this.lorem.getLastName());
+
+
+        return owner;
+    }
+
     private List<List<Double>> getSomePoints() {
         return Lists.newArrayList(
                 Lists.newArrayList(48.16167275, 11.61991766),
@@ -183,6 +237,31 @@ public class ElasticsearchApplicationTests {
                 Lists.newArrayList(48.15694186, 11.60403523),
                 Lists.newArrayList(48.15955031, 11.54534123)
         );
+    }
+
+    private ArrayList<double[]> getOwnerPoints() {
+	    return  Lists.newArrayList(
+                new double[] {48.26995896, 11.03747967},
+                new double[] {47.40469538, 11.60321856},
+                new double[] {48.53545218, 11.53712179},
+                new double[] {48.74853224, 11.65009167},
+                new double[] {47.91400846, 11.33093673},
+                new double[] {47.71992976, 12.03784538},
+                new double[] {48.27612346, 12.88763869},
+                new double[] {47.63991672, 11.38003155},
+                new double[] {47.65268419, 12.14799397},
+                new double[] {48.20643981, 12.31501059},
+                new double[] {47.83648697, 11.83004227},
+                new double[] {47.59511162, 11.16943772},
+                new double[] {48.38030798, 12.18532937},
+                new double[] {48.38110885, 12.00070793},
+                new double[] {48.02018595, 10.7167031},
+                new double[] {47.9867959, 11.27210428},
+                new double[] {47.29104362, 11.85597388},
+                new double[] {47.88619363, 12.32826697},
+                new double[] {48.13330023, 11.09296443},
+                new double[] {48.3513929, 11.85620967}
+                );
     }
 
 //    private List<List<Double>> getPoints() {
