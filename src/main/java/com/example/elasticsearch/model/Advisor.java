@@ -9,6 +9,9 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Document(indexName = "advisors", type = "advisor")
 @Data
 @RequiredArgsConstructor
@@ -23,7 +26,9 @@ public class Advisor {
     @Field(type = FieldType.Text)
     @NonNull
     String lastname;
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Keyword)
     @NonNull
     String shorthandSymbol;
+//    @Field(type = FieldType.Keyword)
+    List<String> referencedFrom;
 }

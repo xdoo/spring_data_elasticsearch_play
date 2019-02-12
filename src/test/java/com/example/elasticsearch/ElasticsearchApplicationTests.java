@@ -3,6 +3,7 @@ package com.example.elasticsearch;
 import com.example.elasticsearch.model.*;
 import com.example.elasticsearch.repositories.AdvisorRepository;
 import com.example.elasticsearch.repositories.CaseRepository;
+import com.example.elasticsearch.repositories.CitizenRepository;
 import com.example.elasticsearch.services.CaseService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -27,6 +28,7 @@ import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -43,30 +45,74 @@ public class ElasticsearchApplicationTests {
     AdvisorRepository advisorRepository;
 
 	@Autowired
+    CitizenRepository citizenRepository;
+
+	@Autowired
     GeoApiContext geoApiContext;
 
 	@Autowired
     ObjectMapper objectMapper;
 
-	private final List advisorIds = Lists.newArrayList(
-	        "FGSTREUDHISJIWKSO",
-            "FGSTREUDHISJIWKSO",
-            "LOIDBGETJHSZUJEUS",
-            "LOSGTWRASFDTSGWTS",
-            "LOSGTWRASFDTSGWTS",
-            "LOSGTWRASFDTSGWTS"
+	private final List<String> advisorIds = Lists.newArrayList(
+            "BY9H9HVNRJ65M8UWX24FMKILGWDF8LRBS3L",
+            "XCJ4G2QLC4IT6BBHIFMK3YZRNXSSSEIAZXO",
+            "LQV314GGKG1GRMS3KMQ6SQ0XLQBSNZJMJON",
+            "3OBT1KW20MQ3ZKJ62EMXETJOUQU1O2LURAD",
+            // ab hier dann die statistische Verteilung
+            "LQV314GGKG1GRMS3KMQ6SQ0XLQBSNZJMJON",
+            "LQV314GGKG1GRMS3KMQ6SQ0XLQBSNZJMJON",
+            "XCJ4G2QLC4IT6BBHIFMK3YZRNXSSSEIAZXO"
+    );
+
+	private final List<String> citicensIds = Lists.newArrayList(
+            "RY3ELKK3PEQONCSDCVVRIXQVJVPL7Q2S2MN",
+            "BMCCUVE8NMCM5FWFQAC5UKTOLEAKRC3FQ3T",
+            "HSQQSIOMHSF5OEPIXACSGVGNKINKA2VIDOE",
+            "HWLW1501KPAZ7JEPNZSPBJEHUSKAL4VB596",
+            "BDPJVZGVRYP0W4XCHSUWLXVHVOQ2ZV1LAU4",
+            "ZOYRBOYWH62CYFAOP4WTMDFEWSZSSSIPRAF",
+            "9Y18YPJ4BSG547WTBOMGG2IZPHP1AWVCUFY",
+            "AM0FXCO6CYDBKSXINPUAWNRCPNOOZ1W1Z0P",
+            "SPENH9AYMXV7BXFJD1OLXLOPRDVPNDYPQSD",
+            "GL8MNRHL8RKUQHM2XDGGDUS5PZRAISZTHLT",
+            "1KILD4XLPIFQ1T5KRP7UVLUYVGW6D8HJHHQ",
+            "MVRBVFDXIIDM6M9YIPEYATJBTOGVKXBXW1X",
+            "BZTLWYC4BN8BWH3WDJNP6QV4AXVY1RWIPJL",
+            "KJRCSMFRDHFUKSNAULHC2RKX3B7IVKLIZR9",
+            "1V4YANURX1JBIIVBZZIE1GHGDPFFPWLSIFI",
+            "EGBXB8TQU9RPX7UMTMJ7WFFNOSHMBWCLNFO",
+            "DRVKHT1HMUQOKUNK2FRWFKEFMM5KMJNYQVP",
+            "0UBWAXRMVRRGKFNERNJ5CSA8BVOSJLWP0JB",
+            "EREPRNAXHMTIGLFBCELZ4NOALMBJXQRSPBI",
+            "I29XF8ZGSOC6C1HVJSDZU8WNGGBMHZRTQ2O",
+            // ab hier dann die statistische Verteilung
+            "DRVKHT1HMUQOKUNK2FRWFKEFMM5KMJNYQVP",
+            "DRVKHT1HMUQOKUNK2FRWFKEFMM5KMJNYQVP",
+            "0UBWAXRMVRRGKFNERNJ5CSA8BVOSJLWP0JB",
+            "0UBWAXRMVRRGKFNERNJ5CSA8BVOSJLWP0JB",
+            "0UBWAXRMVRRGKFNERNJ5CSA8BVOSJLWP0JB",
+            "0UBWAXRMVRRGKFNERNJ5CSA8BVOSJLWP0JB",
+            "0UBWAXRMVRRGKFNERNJ5CSA8BVOSJLWP0JB",
+            "0UBWAXRMVRRGKFNERNJ5CSA8BVOSJLWP0JB",
+            "0UBWAXRMVRRGKFNERNJ5CSA8BVOSJLWP0JB",
+            "0UBWAXRMVRRGKFNERNJ5CSA8BVOSJLWP0JB",
+            "EREPRNAXHMTIGLFBCELZ4NOALMBJXQRSPBI",
+            "I29XF8ZGSOC6C1HVJSDZU8WNGGBMHZRTQ2O",
+            "I29XF8ZGSOC6C1HVJSDZU8WNGGBMHZRTQ2O",
+            "I29XF8ZGSOC6C1HVJSDZU8WNGGBMHZRTQ2O"
     );
 
 	private final Lorem lorem = LoremIpsum.getInstance();
     private final RandomNameGenerator rnd = new RandomNameGenerator(0);
 
-	@Test
-	public void testSave() {
-        Case one = this.service.saveOne("BBB");
-        log.info("ID --> {}", one.getId());
-        one.setText("Hansi Booo");
-        this.service.updateIt(one);
-    }
+
+//	@Test
+//	public void testSave() {
+//        Case one = this.service.saveOne("BBB");
+//        log.info("ID --> {}", one.getId());
+//        one.setText("Hansi Booo");
+//        this.service.updateIt(one);
+//    }
 
     @Test
     public void testCreateAdvisors() {
@@ -74,7 +120,7 @@ public class ElasticsearchApplicationTests {
         advisor1.setFirstname("Hans");
         advisor1.setLastname("Müller");
         advisor1.setShorthandSymbol("HMÜ");
-        advisor1.setId("FGSTREUDHISJIWKSO");
+        advisor1.setId(this.advisorIds.get(0));
 
         this.advisorRepository.save(advisor1);
 
@@ -82,7 +128,7 @@ public class ElasticsearchApplicationTests {
         advisor2.setFirstname("Andrea");
         advisor2.setLastname("Schmidt");
         advisor2.setShorthandSymbol("ASC");
-        advisor2.setId("LOIDBGETJHSZUJEUS");
+        advisor2.setId(this.advisorIds.get(1));
 
         this.advisorRepository.save(advisor2);
 
@@ -90,16 +136,30 @@ public class ElasticsearchApplicationTests {
         advisor3.setFirstname("Paul");
         advisor3.setLastname("Meier");
         advisor3.setShorthandSymbol("PME");
-        advisor3.setId("LOSGTWRASFDTSGWTS");
+        advisor3.setId(this.advisorIds.get(2));
 
         this.advisorRepository.save(advisor3);
+
+        Advisor advisor4 = new Advisor();
+        advisor4.setFirstname("Dorothea");
+        advisor4.setLastname("Murks");
+        advisor4.setShorthandSymbol("DMU");
+        advisor4.setId(this.advisorIds.get(3));
+
+        this.advisorRepository.save(advisor4);
     }
 
-    public void testCreateOwners() {
-        ArrayList<double[]> ownerPoints = this.getOwnerPoints();
-        for(double[] op : ownerPoints) {
-            String id = RandomStringUtils.randomAlphanumeric(35).toUpperCase();
+    @Test
+    public void testCreateCitizens() throws Exception {
+        for(int i = 0; i < 20; i++) {
+            Citizen citizen = new Citizen();
 
+            citizen.setFirstname(this.lorem.getFirstName());
+            citizen.setLastname(this.lorem.getLastName());
+            citizen.setId(this.citicensIds.get(i));
+            citizen.setAddress(this.createAddress(this.getCitizenPoints().get(i)[0], this.getCitizenPoints().get(i)[1]));
+
+            this.citizenRepository.save(citizen);
         }
     }
 
@@ -108,14 +168,54 @@ public class ElasticsearchApplicationTests {
         int cnt = 0;
 	    for(List<Double> point : this.getSomePoints()) {
             String id = RandomStringUtils.randomAlphanumeric(35).toUpperCase();
-            Owner owner = new Owner(this.lorem.getFirstName(), this.lorem.getLastName());
 
             Case aCase = new Case();
             aCase.setId(id);
             aCase.setTitle(this.rnd.next());
             aCase.setText(this.lorem.getWords(10,30));
-            aCase.setOwner(owner);
             aCase.setAddress(this.createAddress(point.get(0), point.get(1)));
+
+            // Eigentümer
+            log.info("crunching owner...");
+            String ownerId = this.citicensIds.get(ThreadLocalRandom.current().nextInt(this.citicensIds.size()));
+            Optional<Citizen> optionalOwner = this.citizenRepository.findById(ownerId);
+            if(optionalOwner.isPresent()) {
+                Citizen owner = optionalOwner.get();
+
+                // set citizen
+                if(owner.getReferencedFrom() == null) {
+                    owner.setReferencedFrom(new ArrayList<>());
+                }
+                owner.getReferencedFrom().add(aCase.getId());
+                this.citizenRepository.save(owner);
+
+                // Liste der Referenzen leeren
+                owner.getReferencedFrom().clear();
+                aCase.setOwner(owner);
+            } else {
+                log.warn("cannot find owner with id {}", ownerId);
+            }
+
+            // Sachbearbeiter
+            log.info("crunching advisor...");
+            String advisorId = this.advisorIds.get(ThreadLocalRandom.current().nextInt(this.advisorIds.size()));
+            Optional<Advisor> optionalAdvisor = this.advisorRepository.findById(advisorId);
+            if(optionalAdvisor.isPresent()) {
+                Advisor advisor = optionalAdvisor.get();
+
+                // set advisor
+                if(advisor.getReferencedFrom() == null) {
+                    advisor.setReferencedFrom(new ArrayList<>());
+                }
+                advisor.getReferencedFrom().add(aCase.getId());
+                this.advisorRepository.save(advisor);
+
+                // Liste der Referenzen leeren
+                advisor.getReferencedFrom().clear();
+                aCase.setAdvisor(advisor);
+            } else {
+                log.warn("cannot find advisor with id {}", advisorId);
+            }
 
             // add a create task
             CreateTask createTask = new CreateTask();
@@ -133,41 +233,41 @@ public class ElasticsearchApplicationTests {
 
     }
 
-    @Test
-    public void testSaveId() {
-        String id = RandomStringUtils.randomAlphanumeric(20).toUpperCase();
-        log.info("ID --> {}", id);
-        Case aCase = this.service.saveSomething(id, "ZZZZ");
-        log.info("ID --> {}", aCase.getId());
-
-        // add geopoint
-        GeoPoint geoPoint = new GeoPoint(48.173243, 11.536002);
-        Case aCase1 = this.service.addGeoPoint(geoPoint, aCase);
-
-        // add some nested items
-        VisitTask visitTask = new VisitTask();
-        visitTask.setComment("My fancy Foo Task!");
-        visitTask.setFoo("yo - foo");
-//        visitTask.setCreated("2019-02-05 13:53:00");
-        visitTask.setCreated(new DateTime().toDate());
-
-        LetterTask letterTask = new LetterTask();
-        letterTask.setComment("Ok - Brief gesendet");
-
-        log.info("suche per id");
-
-        ArrayList<Task> tasks = Lists.newArrayList(visitTask, letterTask);
-        aCase1.setTasks(tasks);
-        this.service.updateIt(aCase1);
-
-        Optional<Case> optionalCase = this.caseRepository.findById(id);
-        if(optionalCase.isPresent()) {
-            log.info("gefunden: {}", optionalCase.get().getTitle());
-        }
-
-//        this.caseRepository.deleteById(id);
-
-    }
+//    @Test
+//    public void testSaveId() {
+//        String id = RandomStringUtils.randomAlphanumeric(20).toUpperCase();
+//        log.info("ID --> {}", id);
+//        Case aCase = this.service.saveSomething(id, "ZZZZ");
+//        log.info("ID --> {}", aCase.getId());
+//
+//        // add geopoint
+//        GeoPoint geoPoint = new GeoPoint(48.173243, 11.536002);
+//        Case aCase1 = this.service.addGeoPoint(geoPoint, aCase);
+//
+//        // add some nested items
+//        VisitTask visitTask = new VisitTask();
+//        visitTask.setComment("My fancy Foo Task!");
+//        visitTask.setFoo("yo - foo");
+////        visitTask.setCreated("2019-02-05 13:53:00");
+//        visitTask.setCreated(new DateTime().toDate());
+//
+//        LetterTask letterTask = new LetterTask();
+//        letterTask.setComment("Ok - Brief gesendet");
+//
+//        log.info("suche per id");
+//
+//        ArrayList<Task> tasks = Lists.newArrayList(visitTask, letterTask);
+//        aCase1.setTasks(tasks);
+//        this.service.updateIt(aCase1);
+//
+//        Optional<Case> optionalCase = this.caseRepository.findById(id);
+//        if(optionalCase.isPresent()) {
+//            log.info("gefunden: {}", optionalCase.get().getTitle());
+//        }
+//
+////        this.caseRepository.deleteById(id);
+//
+//    }
 
     private Address createAddress(Double lat, Double lng) throws Exception {
 	    Address address = new Address();
@@ -211,15 +311,15 @@ public class ElasticsearchApplicationTests {
 	    return address;
     }
 
-    private Owner createOwner(String id, double[] point) {
-        Owner owner = new Owner();
+    private Citizen createOwner(String id, double[] point) {
+        Citizen citizen = new Citizen();
 
-        owner.setId(id);
-        owner.setFirstname(this.lorem.getFirstName());
-        owner.setLastname(this.lorem.getLastName());
+        citizen.setId(id);
+        citizen.setFirstname(this.lorem.getFirstName());
+        citizen.setLastname(this.lorem.getLastName());
 
 
-        return owner;
+        return citizen;
     }
 
     private List<List<Double>> getSomePoints() {
@@ -235,16 +335,45 @@ public class ElasticsearchApplicationTests {
                 Lists.newArrayList(48.12484573, 11.5256366),
                 Lists.newArrayList(48.13946925, 11.56178583),
                 Lists.newArrayList(48.15694186, 11.60403523),
-                Lists.newArrayList(48.15955031, 11.54534123)
+                Lists.newArrayList(48.15955031, 11.54534123),
+                Lists.newArrayList(48.17805417, 11.72004391),
+                Lists.newArrayList(48.12145131, 11.61980808),
+                Lists.newArrayList(48.12119736, 11.54007131),
+                Lists.newArrayList(48.1195967, 11.53081286),
+                Lists.newArrayList(48.1275286, 11.55746023),
+                Lists.newArrayList(48.12677812, 11.65911377),
+                Lists.newArrayList(48.11042544, 11.68071145),
+                Lists.newArrayList(48.15300402, 11.47945508),
+                Lists.newArrayList(48.19469561, 11.56638601),
+                Lists.newArrayList(48.11817576, 11.53319607),
+                Lists.newArrayList(48.18832252, 11.55416933),
+                Lists.newArrayList(48.1982357, 11.56344308),
+                Lists.newArrayList(48.10991328, 11.59936225),
+                Lists.newArrayList(48.19452414, 11.54204874),
+                Lists.newArrayList(48.1530843, 11.69470858),
+                Lists.newArrayList(48.13171221, 11.51290162),
+                Lists.newArrayList(48.11316863, 11.48110062),
+                Lists.newArrayList(48.15644632, 11.58939746),
+                Lists.newArrayList(48.1721628, 11.58540927),
+                Lists.newArrayList(48.13552469, 11.64215703),
+                Lists.newArrayList(48.15774616, 11.4768924),
+                Lists.newArrayList(48.12871459, 11.48081155),
+                Lists.newArrayList(48.15369478, 11.60115691),
+                Lists.newArrayList(48.11550294, 11.50448787),
+                Lists.newArrayList(48.11045073, 11.50707424),
+                Lists.newArrayList(48.11057009, 11.55212057),
+                Lists.newArrayList(48.18612301, 11.71044694),
+                Lists.newArrayList(48.18099136, 11.57530242),
+                Lists.newArrayList(48.11073367, 11.63770731)
         );
     }
 
-    private ArrayList<double[]> getOwnerPoints() {
+    private ArrayList<double[]> getCitizenPoints() {
 	    return  Lists.newArrayList(
                 new double[] {48.26995896, 11.03747967},
                 new double[] {47.40469538, 11.60321856},
                 new double[] {48.53545218, 11.53712179},
-                new double[] {48.74853224, 11.65009167},
+                new double[] {49.687658, 11.633467},
                 new double[] {47.91400846, 11.33093673},
                 new double[] {47.71992976, 12.03784538},
                 new double[] {48.27612346, 12.88763869},
@@ -252,7 +381,7 @@ public class ElasticsearchApplicationTests {
                 new double[] {47.65268419, 12.14799397},
                 new double[] {48.20643981, 12.31501059},
                 new double[] {47.83648697, 11.83004227},
-                new double[] {47.59511162, 11.16943772},
+                new double[] {48.998968, 12.080881},
                 new double[] {48.38030798, 12.18532937},
                 new double[] {48.38110885, 12.00070793},
                 new double[] {48.02018595, 10.7167031},
@@ -260,7 +389,7 @@ public class ElasticsearchApplicationTests {
                 new double[] {47.29104362, 11.85597388},
                 new double[] {47.88619363, 12.32826697},
                 new double[] {48.13330023, 11.09296443},
-                new double[] {48.3513929, 11.85620967}
+                new double[] {47.713353, 11.756455}
                 );
     }
 

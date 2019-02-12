@@ -6,11 +6,14 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-@Document(indexName = "owners", type = "owner")
+import java.util.ArrayList;
+import java.util.List;
+
+@Document(indexName = "citizens", type = "citizen")
 @Data
 @RequiredArgsConstructor
 @NoArgsConstructor
-public class Owner {
+public class Citizen {
 
     @Id
     String id;
@@ -22,5 +25,7 @@ public class Owner {
     String lastname;
     @Field(type = FieldType.Object)
     Address address;
+//    @Field(type = FieldType.Nested, includeInParent = true)
+    List<String> referencedFrom;
 
 }
