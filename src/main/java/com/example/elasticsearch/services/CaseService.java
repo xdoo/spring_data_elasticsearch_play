@@ -1,8 +1,5 @@
 package com.example.elasticsearch.services;
 
-import com.example.elasticsearch.model.Case;
-import com.example.elasticsearch.repositories.CaseRepository;
-import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.stereotype.Service;
 
 @Service

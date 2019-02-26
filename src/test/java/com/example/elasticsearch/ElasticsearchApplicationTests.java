@@ -18,6 +18,7 @@ import com.thedeanda.lorem.LoremIpsum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.util.Lists;
+import org.elasticsearch.client.RequestOptions;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,7 +28,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 @RunWith(SpringRunner.class)
@@ -115,6 +118,12 @@ public class ElasticsearchApplicationTests {
 //    }
 
     @Test
+    public void testFoo() {
+        log.info("options >>>> ");
+    }
+
+
+    @Test
     public void testCreateAdvisors() {
         Advisor advisor1 = new Advisor();
         advisor1.setFirstname("Hans");
@@ -123,6 +132,7 @@ public class ElasticsearchApplicationTests {
         advisor1.setId(this.advisorIds.get(0));
 
         this.advisorRepository.save(advisor1);
+        log.info("saved 1");
 
         Advisor advisor2 = new Advisor();
         advisor2.setFirstname("Andrea");
@@ -131,6 +141,7 @@ public class ElasticsearchApplicationTests {
         advisor2.setId(this.advisorIds.get(1));
 
         this.advisorRepository.save(advisor2);
+        log.info("saved 2");
 
         Advisor advisor3 = new Advisor();
         advisor3.setFirstname("Paul");
@@ -139,6 +150,7 @@ public class ElasticsearchApplicationTests {
         advisor3.setId(this.advisorIds.get(2));
 
         this.advisorRepository.save(advisor3);
+        log.info("saved 3");
 
         Advisor advisor4 = new Advisor();
         advisor4.setFirstname("Dorothea");
@@ -147,6 +159,7 @@ public class ElasticsearchApplicationTests {
         advisor4.setId(this.advisorIds.get(3));
 
         this.advisorRepository.save(advisor4);
+        log.info("saved 4");
     }
 
     @Test
