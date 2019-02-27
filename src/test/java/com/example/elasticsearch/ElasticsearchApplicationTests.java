@@ -1,6 +1,7 @@
 package com.example.elasticsearch;
 
 import com.example.elasticsearch.model.*;
+import com.example.elasticsearch.model.tasks.*;
 import com.example.elasticsearch.repositories.AdvisorRepository;
 import com.example.elasticsearch.repositories.CaseRepository;
 import com.example.elasticsearch.repositories.CitizenRepository;
@@ -17,6 +18,7 @@ import com.thedeanda.lorem.Lorem;
 import com.thedeanda.lorem.LoremIpsum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -27,7 +29,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -36,6 +43,9 @@ import java.util.concurrent.ThreadLocalRandom;
 @SpringBootTest
 @Slf4j
 public class ElasticsearchApplicationTests {
+
+    public static final String STATE_OPEN = "offen";
+    public static final String STATE_CLOSED = "geschlossen";
 
 	@Autowired
 	CaseService service;
@@ -54,6 +64,23 @@ public class ElasticsearchApplicationTests {
 
 	@Autowired
     ObjectMapper objectMapper;
+
+	private final ArrayList<Integer> taskTypes = Lists.newArrayList(
+	        1, // letter
+            2, //note
+            2,
+            2,
+            2,
+            2,
+            3, // phone
+            3,
+            4, // offense
+            5, // resubmission
+            5,
+            5,
+            6,
+            6 // visit
+    );
 
 	private final List<String> advisorIds = Lists.newArrayList(
             "BY9H9HVNRJ65M8UWX24FMKILGWDF8LRBS3L",
@@ -112,7 +139,7 @@ public class ElasticsearchApplicationTests {
 //	public void testSave() {
 //        Case one = this.service.saveOne("BBB");
 //        log.info("ID --> {}", one.getId());
-//        one.setText("Hansi Booo");
+//        one.setDescription("Hansi Booo");
 //        this.service.updateIt(one);
 //    }
 
@@ -178,8 +205,9 @@ public class ElasticsearchApplicationTests {
 
             Case aCase = new Case();
             aCase.setId(id);
+            aCase.setState(STATE_OPEN);
             aCase.setTitle(this.rnd.next());
-            aCase.setText(this.lorem.getWords(10,30));
+            aCase.setDescription(this.lorem.getWords(10,30));
             aCase.setAddress(this.createAddress(point.get(0), point.get(1)));
 
             // Eigentümer
@@ -207,8 +235,9 @@ public class ElasticsearchApplicationTests {
             log.info("crunching advisor...");
             String advisorId = this.advisorIds.get(ThreadLocalRandom.current().nextInt(this.advisorIds.size()));
             Optional<Advisor> optionalAdvisor = this.advisorRepository.findById(advisorId);
+            Advisor advisor = null;
             if(optionalAdvisor.isPresent()) {
-                Advisor advisor = optionalAdvisor.get();
+                advisor = optionalAdvisor.get();
 
                 // set advisor
                 if(advisor.getReferencedFrom() == null) {
@@ -225,12 +254,17 @@ public class ElasticsearchApplicationTests {
             }
 
             // add a create task
-            CreateTask createTask = new CreateTask();
-            createTask.setCreated(new DateTime().toDate());
-            createTask.setComment("Fall wurde eröffnet.");
+//            CreateTask createTask = new CreateTask();
+//            Date createDate = this.createRandomDate(this.parseDate("01.01.2017"), new Date());
+//            createTask.setCreated(new DateTime().toDate());
+//            createTask.setComment("Fall wurde eröffnet.");
 
-            aCase.getTasks().add(createTask);
+            // add task list
+            int x = ThreadLocalRandom.current().nextInt(1, 20);
+            List<Date> dates = this.createDateLine("01.06.2017", x, 5, 100);
+            List<Task> tasks = this.randomTasks(dates, advisor, false);
 
+            aCase.getTasks().addAll(tasks);
 
             this.caseRepository.save(aCase);
 
@@ -238,6 +272,214 @@ public class ElasticsearchApplicationTests {
             log.info("counter: {}", cnt);
         }
 
+    }
+
+    @Test
+    public void testCreateTaskList() {
+        Advisor advisor3 = new Advisor();
+        advisor3.setFirstname("Paul");
+        advisor3.setLastname("Meier");
+        advisor3.setShorthandSymbol("PME");
+        advisor3.setId(this.advisorIds.get(2));
+
+        List<Date> dateList =  this.createDateLine("13.10.2017", 15, 5, 60);
+        List<Task> tasks = this.randomTasks(dateList, advisor3, false);
+        tasks.forEach(t -> {
+            log.info("Task: " + t.toString());
+        });
+    }
+
+    private List<Task> randomTasks(List<Date> dates, Advisor advisor, Boolean finished) {
+        List<Task> tasks = new ArrayList<>();
+        // immer mit einem create task beginnen
+        tasks.add(this.createTask(dates.get(0), advisor));
+
+        int size = dates.size();
+        if(finished) {
+            size--;
+        }
+
+        for(int i = 1; i < size; i++) {
+            int type = this.taskTypes.get(ThreadLocalRandom.current().nextInt(0, this.taskTypes.size()));
+            switch (type) {
+                case 1:
+                    tasks.add(this.letterTask(dates.get(i), advisor));
+                    break;
+                case 2:
+                    tasks.add(this.noteTask(dates.get(i), advisor));
+                    break;
+                case 3:
+                    tasks.add(this.phoneTask(dates.get(i), advisor));
+                    break;
+                case 4:
+                    tasks.add(this.offenseTask(dates.get(i), advisor));
+                    break;
+                case 5:
+                    tasks.add(this.resubmissionTask(dates.get(i), advisor));
+                    break;
+                case 6:
+                    tasks.add(this.visitTask(dates.get(i), advisor));
+                    break;
+            }
+        }
+
+        if(finished) {
+            tasks.add(this.closeTask(dates.get(size), advisor));
+        }
+
+        return tasks;
+    }
+
+    private Date createRandomDate(Date start, Date end) {
+        long random = ThreadLocalRandom.current().nextLong(start.getTime(), end.getTime());
+        return new Date(random);
+    }
+
+    private Date parseDate(String date) {
+        try {
+            DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+            Date inputDate = dateFormat.parse(date);
+            return inputDate;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    private Date parseDateTime(String date) {
+        try {
+            DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+            Date inputDate = dateFormat.parse(date);
+            return inputDate;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    private String getDateTimeAsString(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        return  dateFormat.format(date);
+    }
+
+    private String getDateAsString(Date date) {
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+        return  dateFormat.format(date);
+    }
+
+    private List<Date> createDateLine(String start, int cnt, int min, int max) {
+        List<Date> dates = new ArrayList<>();
+        Date input = this.parseDate(start);
+        LocalDate startDate =  input.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        for(int i = 0; i < cnt; i++) {
+            int plus = ThreadLocalRandom.current().nextInt(min, max);
+            LocalDate date = startDate.plusDays(plus);
+            dates.add(Date.from(date.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            startDate = date;
+        }
+
+        return dates;
+    }
+
+    private CreateTask createTask(Date date, Advisor advisor) {
+        CreateTask task = new CreateTask();
+        task.setComment("Fall wurde eröffnet.");
+        this.fillIt(task, advisor, date);
+        return task;
+    }
+
+    private CloseTask closeTask(Date date, Advisor advisor) {
+        CloseTask task = new CloseTask();
+        task.setComment("Fall wurde eröffnet.");
+        this.fillIt(task, advisor, date);
+        return task;
+    }
+
+    private LetterTask letterTask(Date date, Advisor advisor) {
+        LetterTask task = new LetterTask();
+        task.setComment(this.lorem.getWords(20, 40));
+        task.setUrlToCopy(this.lorem.getUrl());
+        this.fillIt(task, advisor, date);
+        return task;
+    }
+
+    private NoteTask noteTask(Date date, Advisor advisor) {
+        NoteTask task = new NoteTask();
+        task.setNote(this.lorem.getWords(5, 25));
+        this.fillIt(task, advisor, date);
+        return task;
+    }
+
+    private OffenseTask offenseTask(Date date, Advisor advisor) {
+        OffenseTask task = new OffenseTask();
+        double amount = ThreadLocalRandom.current().nextDouble(250.00, 25000.00);
+        amount = Math.ceil(amount / 10) * 10;
+        task.setAmount(amount);
+        task.setReason(this.lorem.getWords(30, 100));
+        this.fillIt(task, advisor, date);
+        return task;
+    }
+
+    private PhoneTask phoneTask(Date date, Advisor advisor) {
+        PhoneTask task = new PhoneTask();
+        String d = this.getDateAsString(date);
+        List<String> timeGap = this.getRandomTimeGap();
+        task.setStart(this.parseDateTime(d + " " + timeGap.get(0)));
+        task.setEnd(this.parseDateTime(d + " " + timeGap.get(1)));
+        task.setNumber(this.lorem.getPhone());
+        task.setComment(this.lorem.getWords(20, 40));
+        this.fillIt(task, advisor, date);
+        return task;
+    }
+
+    private ResubmissionTask resubmissionTask(Date date, Advisor advisor) {
+        ResubmissionTask task = new ResubmissionTask();
+        task.setResubmissionDate(getRandomPlusDate(date));
+        task.setComment(this.lorem.getWords(20, 40));
+        this.fillIt(task, advisor, date);
+        return task;
+    }
+
+    private VisitTask visitTask(Date date, Advisor advisor) {
+        VisitTask task = new VisitTask();
+        String d = this.getDateAsString(date);
+        List<String> timeGap = this.getRandomTimeGap();
+        task.setStart(this.parseDateTime(d + " " + timeGap.get(0)));
+        task.setEnd(this.parseDateTime(d + " " + timeGap.get(1)));
+        task.setComment(this.lorem.getWords(20, 40));
+        this.fillIt(task, advisor, date);
+        return task;
+    }
+
+    private Date getRandomPlusDate(Date date) {
+        LocalDate startDate =  date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int plus = ThreadLocalRandom.current().nextInt(10, 100);
+        LocalDate plusDate = startDate.plusDays(plus);
+        return Date.from(plusDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+    }
+
+    private List<String> getRandomTimeGap() {
+        int hour1 = ThreadLocalRandom.current().nextInt(6, 18);
+        int minute1 = ThreadLocalRandom.current().nextInt(0, 60);
+        int minutes = ThreadLocalRandom.current().nextInt(1, 25);
+        int minute2 = minute1 + minutes;
+        int hour2 = hour1;
+        if(minute2 > 59) {
+            minute2 = minute2 - 59;
+            hour2 = hour1 + 1;
+        }
+        // format time
+        return  Lists.newArrayList(
+            StringUtils.leftPad(String.valueOf(hour1), 2, "0") + ":" + StringUtils.leftPad(String.valueOf(minute1), 2, "0"),
+            StringUtils.leftPad(String.valueOf(hour2), 2, "0") + ":" + StringUtils.leftPad(String.valueOf(minute2), 2, "0")
+        );
+    }
+
+    private void fillIt(Task task, Advisor advisor, Date date) {
+        task.setAdvisorId(advisor.getId());
+        task.setAdvisorShorthandSymbol(advisor.getShorthandSymbol());
+        task.setCreated(date);
     }
 
 //    @Test

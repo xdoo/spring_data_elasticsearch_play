@@ -1,11 +1,11 @@
-package com.example.elasticsearch.model;
+package com.example.elasticsearch.model.tasks;
 
 import lombok.Data;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 @Data
-public class CloseTask {
+public class CloseTask extends Task {
     @Field( type = FieldType.Text)
     private String comment;
 }

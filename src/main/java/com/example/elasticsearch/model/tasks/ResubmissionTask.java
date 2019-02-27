@@ -1,4 +1,4 @@
-package com.example.elasticsearch.model;
+package com.example.elasticsearch.model.tasks;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
@@ -15,6 +15,4 @@ public class ResubmissionTask extends Task {
     private Date resubmissionDate;
     @Field( type = FieldType.Text )
     private String comment;
-    @Field (type = FieldType.Integer)
-    private int duration;
 }

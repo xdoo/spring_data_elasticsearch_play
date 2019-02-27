@@ -1,4 +1,4 @@
-package com.example.elasticsearch.model;
+package com.example.elasticsearch.model.tasks;
 
 import lombok.Data;
 import org.springframework.data.elasticsearch.annotations.Field;

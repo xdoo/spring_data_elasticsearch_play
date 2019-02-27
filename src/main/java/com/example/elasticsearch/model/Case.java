@@ -1,5 +1,6 @@
 package com.example.elasticsearch.model;
 
+import com.example.elasticsearch.model.tasks.Task;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -14,11 +15,12 @@ public class Case {
 
     @Id
     String id;
-    @Field(type = FieldType.Boolean)
-    Boolean state;
+    @Field(type = FieldType.Keyword)
+    String state;
+    @Field(type = FieldType.Text)
     String title;
     @Field(type = FieldType.Text)
-    String text;
+    String description;
     @Field(type = FieldType.Nested, includeInParent = true)
     ArrayList<Task> tasks = new ArrayList<>();
     @Field(type = FieldType.Nested, includeInParent = true)

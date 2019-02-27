@@ -1,4 +1,4 @@
-package com.example.elasticsearch.model;
+package com.example.elasticsearch.model.tasks;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -16,9 +16,14 @@ import java.util.Date;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = LetterTask.class, name = "letter"),
-        @JsonSubTypes.Type(value = VisitTask.class, name = "visit"),
-        @JsonSubTypes.Type(value = CreateTask.class, name = "create")
+        @JsonSubTypes.Type(value = LetterTask.class, name = "Brief"),
+        @JsonSubTypes.Type(value = VisitTask.class, name = "Besuch"),
+        @JsonSubTypes.Type(value = CreateTask.class, name = "erstellt"),
+        @JsonSubTypes.Type(value = CloseTask.class, name = "geschlossen"),
+        @JsonSubTypes.Type(value = NoteTask.class, name = "Notiz"),
+        @JsonSubTypes.Type(value = OffenseTask.class, name = "Ordnungswidrigkeit"),
+        @JsonSubTypes.Type(value = PhoneTask.class, name = "Telefonat"),
+        @JsonSubTypes.Type(value = ResubmissionTask.class, name = "Widervorlage")
 })
 public abstract class Task {
     @Field( type = FieldType.Date, format = DateFormat.date_time_no_millis)
