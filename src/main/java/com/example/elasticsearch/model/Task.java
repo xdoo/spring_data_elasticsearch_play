@@ -21,8 +21,11 @@ import java.util.Date;
         @JsonSubTypes.Type(value = CreateTask.class, name = "create")
 })
 public abstract class Task {
-    String comment;
     @Field( type = FieldType.Date, format = DateFormat.date_time_no_millis)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssZZ")
     Date created;
+    @Field( type = FieldType.Keyword)
+    String advisorId;
+    @Field( type = FieldType.Keyword)
+    String advisorShorthandSymbol;
 }

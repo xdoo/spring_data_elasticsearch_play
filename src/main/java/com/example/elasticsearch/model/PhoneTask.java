@@ -13,4 +13,6 @@ public class PhoneTask extends Task {
     private Date start;
     @Field(type = FieldType.Date, format = DateFormat.basic_date_time_no_millis)
     private Date end;
+    @Field( type = FieldType.Text)
+    private String comment;
 }
