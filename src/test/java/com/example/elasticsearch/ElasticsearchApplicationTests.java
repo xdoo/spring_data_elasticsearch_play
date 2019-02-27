@@ -18,7 +18,6 @@ import com.thedeanda.lorem.LoremIpsum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.assertj.core.util.Lists;
-import org.elasticsearch.client.RequestOptions;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -116,11 +115,6 @@ public class ElasticsearchApplicationTests {
 //        one.setText("Hansi Booo");
 //        this.service.updateIt(one);
 //    }
-
-    @Test
-    public void testFoo() {
-        log.info("options >>>> ");
-    }
 
 
     @Test
