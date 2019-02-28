@@ -11,35 +11,47 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 
 import javax.net.ssl.SSLContext;
 
+@Profile("demo")
 @Configuration
 @EnableElasticsearchRepositories(basePackages = "com/example/elasticsearch/repositories")
 @Slf4j
-public class ElasticSearchConfig {
+public class ElasticSearchDemoConfig {
+
+    @Value(value = "${bonsai.password}")
+    private String password;
+
+    @Value(value = "${bonsai.user}")
+    private String user;
+
+    @Value(value = "${bonsai.url}")
+    private String url;
 
     @Bean
     RestHighLevelClient client() throws Exception {
 
-        // Basic Auth konfigurieren
+        // Basic Auth
         final CredentialsProvider credentialsProvider =
                 new BasicCredentialsProvider();
         credentialsProvider.setCredentials(AuthScope.ANY,
-                new UsernamePasswordCredentials("h8amddgsal", "utz1kuxw98"));
+                new UsernamePasswordCredentials(this.user, this.password));
 
-        // SSL Context konfigurieren
+        // SSL Context
         SSLContext sslContext = new SSLContextBuilder()
                 .loadTrustMaterial(null, (certificate, authType) -> true).build();
 
-        // Rest Client erstellen
+        // Rest Client
         RestClientBuilder builder = RestClient.builder(
-                new HttpHost("lhm-search-demo-4880040604.eu-west-1.bonsaisearch.net", 443, "https"))
+                new HttpHost(this.url, 443, "https"))
                 .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
 
                     public HttpAsyncClientBuilder customizeHttpClient(
