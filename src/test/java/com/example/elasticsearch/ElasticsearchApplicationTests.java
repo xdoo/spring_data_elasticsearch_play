@@ -184,7 +184,7 @@ public class ElasticsearchApplicationTests {
 
     @Test
     public void testManipulateData() {
-        Optional<Case> aCase = this.caseRepository.findById("SSJAUGZZ4SMSAGS4IV42AM8AE7K6DLRQB8L");
+        Optional<Case> aCase = this.caseRepository.findById("WILMBAPOWBITRQI4FL4XTFGEZELUYEZHFA2");
         if(aCase.isPresent()) {
             Case c = aCase.get();
             ArrayList<Task> tasks = c.getTasks();

@@ -27,14 +27,17 @@ import javax.net.ssl.SSLContext;
 @Slf4j
 public class ElasticSearchDemoConfig {
 
-    @Value(value = "${bonsai.password}")
+    @Value(value = "${elasticsearch.password}")
     private String password;
 
-    @Value(value = "${bonsai.user}")
+    @Value(value = "${elasticsearch.user}")
     private String user;
 
-    @Value(value = "${bonsai.url}")
+    @Value(value = "${elasticsearch.url}")
     private String url;
+
+    @Value(value = "${elasticsearch.port}")
+    private int port;
 
     @Bean
     RestHighLevelClient client() throws Exception {
@@ -51,7 +54,7 @@ public class ElasticSearchDemoConfig {
 
         // Rest Client
         RestClientBuilder builder = RestClient.builder(
-                new HttpHost(this.url, 443, "https"))
+                new HttpHost(this.url, this.port, "https"))
                 .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
 
                     public HttpAsyncClientBuilder customizeHttpClient(

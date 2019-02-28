@@ -2,6 +2,7 @@ package com.example.elasticsearch.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -17,11 +18,23 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @Slf4j
 public class ElasticSearchDevConfig {
 
+    @Value(value = "${elasticsearch.password}")
+    private String password;
+
+    @Value(value = "${elasticsearch.user}")
+    private String user;
+
+    @Value(value = "${elasticsearch.url}")
+    private String url;
+
+    @Value(value = "${elasticsearch.port}")
+    private int port;
+
     @Bean
     RestHighLevelClient client() {
 
         ClientConfiguration clientConfiguration = ClientConfiguration.builder()
-                .connectedTo("localhost:9200")
+                .connectedTo(this.url+":"+this.port)
                 .build();
 
         return RestClients.create(clientConfiguration).rest();
