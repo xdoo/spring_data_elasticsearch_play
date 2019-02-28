@@ -33,8 +33,8 @@ public class ElasticSearchDemoConfig {
     @Value(value = "${elasticsearch.user}")
     private String user;
 
-    @Value(value = "${elasticsearch.url}")
-    private String url;
+    @Value(value = "${elasticsearch.host}")
+    private String host;
 
     @Value(value = "${elasticsearch.port}")
     private int port;
@@ -54,7 +54,7 @@ public class ElasticSearchDemoConfig {
 
         // Rest Client
         RestClientBuilder builder = RestClient.builder(
-                new HttpHost(this.url, this.port, "https"))
+                new HttpHost(this.host, this.port, "https"))
                 .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
 
                     public HttpAsyncClientBuilder customizeHttpClient(

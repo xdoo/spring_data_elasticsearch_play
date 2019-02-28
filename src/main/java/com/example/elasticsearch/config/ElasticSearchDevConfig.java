@@ -24,8 +24,8 @@ public class ElasticSearchDevConfig {
     @Value(value = "${elasticsearch.user}")
     private String user;
 
-    @Value(value = "${elasticsearch.url}")
-    private String url;
+    @Value(value = "${elasticsearch.host}")
+    private String host;
 
     @Value(value = "${elasticsearch.port}")
     private int port;
@@ -34,7 +34,7 @@ public class ElasticSearchDevConfig {
     RestHighLevelClient client() {
 
         ClientConfiguration clientConfiguration = ClientConfiguration.builder()
-                .connectedTo(this.url+":"+this.port)
+                .connectedTo(this.host +":"+this.port)
                 .build();
 
         return RestClients.create(clientConfiguration).rest();

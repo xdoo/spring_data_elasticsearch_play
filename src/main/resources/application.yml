@@ -4,7 +4,7 @@ spring:
 elasticsearch:
   password:
   user:
-  url: localhost
+  host: localhost
   port: 9200
 
 ---
@@ -14,5 +14,5 @@ spring:
 elasticsearch:
   password: utz1kuxw98
   user: h8amddgsal
-  url: lhm-search-demo-4880040604.eu-west-1.bonsaisearch.net
+  host: lhm-search-demo-4880040604.eu-west-1.bonsaisearch.net
   port: 443
