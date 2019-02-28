@@ -184,6 +184,21 @@ public class ElasticsearchApplicationTests {
     }
 
     @Test
+    public void testManipulateData() {
+        Optional<Case> aCase = this.caseRepository.findById("SSJAUGZZ4SMSAGS4IV42AM8AE7K6DLRQB8L");
+        if(aCase.isPresent()) {
+            Case c = aCase.get();
+            ArrayList<Task> tasks = c.getTasks();
+            CloseTask closeTask = this.closeTask(new Date(), c.getAdvisor());
+            // set close task
+            tasks.add(closeTask);
+            c.setState(STATE_CLOSED);
+            // speichern
+            this.caseRepository.save(c);
+        }
+    }
+
+    @Test
     public void testCreateCitizens() throws Exception {
         for(int i = 0; i < 20; i++) {
             Citizen citizen = new Citizen();

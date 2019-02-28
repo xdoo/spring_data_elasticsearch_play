@@ -23,7 +23,7 @@ import java.util.Date;
         @JsonSubTypes.Type(value = NoteTask.class, name = "Notiz"),
         @JsonSubTypes.Type(value = OffenseTask.class, name = "Ordnungswidrigkeit"),
         @JsonSubTypes.Type(value = PhoneTask.class, name = "Telefonat"),
-        @JsonSubTypes.Type(value = ResubmissionTask.class, name = "Widervorlage")
+        @JsonSubTypes.Type(value = ResubmissionTask.class, name = "Wiedervorlage")
 })
 public abstract class Task {
     @Field( type = FieldType.Date, format = DateFormat.date_time_no_millis)
