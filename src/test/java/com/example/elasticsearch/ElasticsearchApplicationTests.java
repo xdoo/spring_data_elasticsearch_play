@@ -218,6 +218,12 @@ public class ElasticsearchApplicationTests {
             citizens.add(c);
         });
 
+        // Sachbearbeiter laden
+        List<Advisor> advisors = new ArrayList<>();
+        this.advisorRepository.findAll().forEach(a -> {
+            advisors.add(a);
+        });
+
         // Adressen erstellen
         List<Address> addresses = new ArrayList<>();
         this.get2000Points().forEach(p -> {
@@ -247,8 +253,10 @@ public class ElasticsearchApplicationTests {
             aCase.setAddress(address);
 
             // Eigentümer
-            log.info("crunching owner...");
-            Citizen owner = citizens.get(ThreadLocalRandom.current().nextInt(citizens.size()));
+            Citizen o = citizens.get(ThreadLocalRandom.current().nextInt(citizens.size()));
+
+            // Der Eigentümer muss geladen werden, damit man die aktuellen Referenzen mit bekommt.
+            Citizen owner = this.citizenRepository.findById(o.getId()).get();
 
             // set citizen
             if(owner.getReferencedFrom() == null) {
@@ -262,31 +270,31 @@ public class ElasticsearchApplicationTests {
             aCase.setOwner(owner);
 
             // Sachbearbeiter
-            log.info("crunching advisor...");
-            String advisorId = this.advisorIds.get(ThreadLocalRandom.current().nextInt(this.advisorIds.size()));
-            Optional<Advisor> optionalAdvisor = this.advisorRepository.findById(advisorId);
-            Advisor advisor = null;
-            if(optionalAdvisor.isPresent()) {
-                advisor = optionalAdvisor.get();
+            Advisor a = advisors.get(ThreadLocalRandom.current().nextInt(advisors.size()));
 
-                // set advisor
-                if(advisor.getReferencedFrom() == null) {
-                    advisor.setReferencedFrom(new ArrayList<>());
-                }
-                advisor.getReferencedFrom().add(aCase.getId());
-                this.advisorRepository.save(advisor);
+            // Der Sacvhbearbeiter muss geladen werden, damit man die aktuellen referenzen mit bekommt.
+            Advisor advisor = this.advisorRepository.findById(a.getId()).get();
 
-                // Liste der Referenzen leeren
-                advisor.getReferencedFrom().clear();
-                aCase.setAdvisor(advisor);
-            } else {
-                log.warn("cannot find advisor with id {}", advisorId);
+            // set advisor
+            if(advisor.getReferencedFrom() == null) {
+                advisor.setReferencedFrom(new ArrayList<>());
+            }
+            advisor.getReferencedFrom().add(aCase.getId());
+            this.advisorRepository.save(advisor);
+
+            // Liste der Referenzen leeren
+            advisor.getReferencedFrom().clear();
+            aCase.setAdvisor(advisor);
+
+            // Task Liste erstellen
+            boolean finished = false;
+            if(ThreadLocalRandom.current().nextInt(9) > 6) {
+                finished = true;
             }
 
-            // add task list
             int x = ThreadLocalRandom.current().nextInt(1, 20);
             List<Date> dates = this.createDateLine("01.06.2017", x, 5, 100);
-            List<Task> tasks = this.randomTasks(dates, advisor, false);
+            List<Task> tasks = this.randomTasks(dates, advisor, finished);
 
             aCase.getTasks().addAll(tasks);
 
