@@ -7,6 +7,7 @@ import com.example.elasticsearch.repositories.CaseRepository;
 import com.example.elasticsearch.repositories.CitizenRepository;
 import com.example.elasticsearch.services.CaseService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.maps.GeoApiContext;
@@ -81,6 +82,24 @@ public class ElasticsearchApplicationTests {
             6 // visit
     );
 
+	private final List<String[]> advisors = Lists.newArrayList(
+            new String[] {"Angela", "Merkel", "AMER" },
+            new String[] {"Olaf", "Scholz", "OSCH" },
+            new String[] {"Horst", "Seehofer", "HSEE" },
+            new String[] {"Heiko", "Maas", "HMAA"},
+            new String[] {"Peter", "Altmaier", "PALT" },
+            new String[] {"Katarina", "Barley", "KBAR" },
+            new String[] {"Hubertus", "Heil", "HHEI" },
+            new String[] {"Julia", "Klöckner", "JKLÖ" },
+            new String[] {"Franziska", "Giffey", "FGIF" },
+            new String[] {"Jens", "Spahn", "JSPA" },
+            new String[] {"Andreas", "Scheuer", "ASCH" },
+            new String[] {"Svenja", "Schulze", "SSCH" },
+            new String[] {"Anja", "Karliczek", "AKAR" },
+            new String[] {"Gerd", "Müller", "GMÜL" },
+            new String[] {"Helge", "Braun", "HBRA" }
+    );
+
 	private final List<String> advisorIds = Lists.newArrayList(
             "BY9H9HVNRJ65M8UWX24FMKILGWDF8LRBS3L",
             "XCJ4G2QLC4IT6BBHIFMK3YZRNXSSSEIAZXO",
@@ -145,41 +164,16 @@ public class ElasticsearchApplicationTests {
 
     @Test
     public void testCreateAdvisors() {
-        Advisor advisor1 = new Advisor();
-        advisor1.setFirstname("Hans");
-        advisor1.setLastname("Müller");
-        advisor1.setShorthandSymbol("HMÜ");
-        advisor1.setId(this.advisorIds.get(0));
+        this.advisors.forEach(a -> {
+            Advisor advisor = new Advisor();
+            advisor.setFirstname(a[0]);
+            advisor.setLastname(a[1]);
+            advisor.setShorthandSymbol(a[2]);
+            advisor.setId(RandomStringUtils.randomAlphanumeric(35).toUpperCase());
 
-        this.advisorRepository.save(advisor1);
-        log.info("saved 1");
-
-        Advisor advisor2 = new Advisor();
-        advisor2.setFirstname("Andrea");
-        advisor2.setLastname("Schmidt");
-        advisor2.setShorthandSymbol("ASC");
-        advisor2.setId(this.advisorIds.get(1));
-
-        this.advisorRepository.save(advisor2);
-        log.info("saved 2");
-
-        Advisor advisor3 = new Advisor();
-        advisor3.setFirstname("Paul");
-        advisor3.setLastname("Meier");
-        advisor3.setShorthandSymbol("PME");
-        advisor3.setId(this.advisorIds.get(2));
-
-        this.advisorRepository.save(advisor3);
-        log.info("saved 3");
-
-        Advisor advisor4 = new Advisor();
-        advisor4.setFirstname("Dorothea");
-        advisor4.setLastname("Murks");
-        advisor4.setShorthandSymbol("DMU");
-        advisor4.setId(this.advisorIds.get(3));
-
-        this.advisorRepository.save(advisor4);
-        log.info("saved 4");
+            this.advisorRepository.save(advisor);
+            log.info("{} {} ({}) gespeichert", advisor.getFirstname(), advisor.getLastname(), advisor.getShorthandSymbol());
+        });
     }
 
     @Test
@@ -218,8 +212,31 @@ public class ElasticsearchApplicationTests {
 
     @Test
     public void testCreateMany() throws Exception {
+        // Eigentümer laden
+        List<Citizen> citizens = new ArrayList<>();
+        this.citizenRepository.findAll().forEach(c -> {
+            citizens.add(c);
+        });
+
+        // Adressen erstellen
+        List<Address> addresses = new ArrayList<>();
+        this.get2000Points().forEach(p -> {
+            try {
+                Address address = this.createAddress(p[0], p[1]);
+                // prüfen, ob der Punkt an einer Strasse und innerhalb von München liegt
+                if(!Strings.isNullOrEmpty(address.getStreet()) && address.getCity().equals("München")) {
+                    addresses.add(address);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        });
+
+        log.info("Es wurden {} gültige Münchner Adressen gefunden.", addresses.size());
+
         int cnt = 0;
-	    for(List<Double> point : this.getSomePoints()) {
+	    for(Address address : addresses) {
             String id = RandomStringUtils.randomAlphanumeric(35).toUpperCase();
 
             Case aCase = new Case();
@@ -227,28 +244,22 @@ public class ElasticsearchApplicationTests {
             aCase.setState(STATE_OPEN);
             aCase.setTitle(this.rnd.next());
             aCase.setDescription(this.lorem.getWords(10,30));
-            aCase.setAddress(this.createAddress(point.get(0), point.get(1)));
+            aCase.setAddress(address);
 
             // Eigentümer
             log.info("crunching owner...");
-            String ownerId = this.citicensIds.get(ThreadLocalRandom.current().nextInt(this.citicensIds.size()));
-            Optional<Citizen> optionalOwner = this.citizenRepository.findById(ownerId);
-            if(optionalOwner.isPresent()) {
-                Citizen owner = optionalOwner.get();
+            Citizen owner = citizens.get(ThreadLocalRandom.current().nextInt(citizens.size()));
 
-                // set citizen
-                if(owner.getReferencedFrom() == null) {
-                    owner.setReferencedFrom(new ArrayList<>());
-                }
-                owner.getReferencedFrom().add(aCase.getId());
-                this.citizenRepository.save(owner);
-
-                // Liste der Referenzen leeren
-                owner.getReferencedFrom().clear();
-                aCase.setOwner(owner);
-            } else {
-                log.warn("cannot find owner with id {}", ownerId);
+            // set citizen
+            if(owner.getReferencedFrom() == null) {
+               owner.setReferencedFrom(new ArrayList<>());
             }
+            owner.getReferencedFrom().add(aCase.getId());
+            this.citizenRepository.save(owner);
+
+            // Liste der Referenzen leeren
+            owner.getReferencedFrom().clear();
+            aCase.setOwner(owner);
 
             // Sachbearbeiter
             log.info("crunching advisor...");
@@ -271,12 +282,6 @@ public class ElasticsearchApplicationTests {
             } else {
                 log.warn("cannot find advisor with id {}", advisorId);
             }
-
-            // add a create task
-//            CreateTask createTask = new CreateTask();
-//            Date createDate = this.createRandomDate(this.parseDate("01.01.2017"), new Date());
-//            createTask.setCreated(new DateTime().toDate());
-//            createTask.setComment("Fall wurde eröffnet.");
 
             // add task list
             int x = ThreadLocalRandom.current().nextInt(1, 20);
