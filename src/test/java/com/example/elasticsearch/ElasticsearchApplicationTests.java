@@ -199,16 +199,21 @@ public class ElasticsearchApplicationTests {
 
     @Test
     public void testCreateCitizens() throws Exception {
-        for(int i = 0; i < 20; i++) {
+
+        this.getCitizenPoints().forEach(p -> {
             Citizen citizen = new Citizen();
 
             citizen.setFirstname(this.lorem.getFirstName());
             citizen.setLastname(this.lorem.getLastName());
-            citizen.setId(this.citicensIds.get(i));
-            citizen.setAddress(this.createAddress(this.getCitizenPoints().get(i)[0], this.getCitizenPoints().get(i)[1]));
+            citizen.setId(RandomStringUtils.randomAlphanumeric(35).toUpperCase());
+            try {
+                citizen.setAddress(this.createAddress(p[0], p[1]));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             this.citizenRepository.save(citizen);
-        }
+        });
     }
 
     @Test
