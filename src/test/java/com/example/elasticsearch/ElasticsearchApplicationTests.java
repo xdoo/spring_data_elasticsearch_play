@@ -155,10 +155,10 @@ public class ElasticsearchApplicationTests {
 
 //	@Test
 //	public void testSave() {
-//        Case one = this.service.saveOne("BBB");
+//        Case one = this.services.saveOne("BBB");
 //        log.info("ID --> {}", one.getId());
 //        one.setDescription("Hansi Booo");
-//        this.service.updateIt(one);
+//        this.services.updateIt(one);
 //    }
 
 
@@ -518,12 +518,12 @@ public class ElasticsearchApplicationTests {
 //    public void testSaveId() {
 //        String id = RandomStringUtils.randomAlphanumeric(20).toUpperCase();
 //        log.info("ID --> {}", id);
-//        Case aCase = this.service.saveSomething(id, "ZZZZ");
+//        Case aCase = this.services.saveSomething(id, "ZZZZ");
 //        log.info("ID --> {}", aCase.getId());
 //
 //        // add geopoint
 //        GeoPoint geoPoint = new GeoPoint(48.173243, 11.536002);
-//        Case aCase1 = this.service.addGeoPoint(geoPoint, aCase);
+//        Case aCase1 = this.services.addGeoPoint(geoPoint, aCase);
 //
 //        // add some nested items
 //        VisitTask visitTask = new VisitTask();
@@ -539,7 +539,7 @@ public class ElasticsearchApplicationTests {
 //
 //        ArrayList<Task> tasks = Lists.newArrayList(visitTask, letterTask);
 //        aCase1.setTasks(tasks);
-//        this.service.updateIt(aCase1);
+//        this.services.updateIt(aCase1);
 //
 //        Optional<Case> optionalCase = this.caseRepository.findById(id);
 //        if(optionalCase.isPresent()) {
