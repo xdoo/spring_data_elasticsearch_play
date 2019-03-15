@@ -1,20 +1,14 @@
 package com.example.elasticsearch.services;
 
 import com.example.elasticsearch.model.Case;
+import com.example.elasticsearch.repositories.CaseRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.elasticsearch.client.ElasticsearchClient;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestHighLevelClient;
-import org.elasticsearch.script.mustache.SearchTemplateRequestBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.elasticsearch.index.query.QueryBuilders.*;
 
@@ -23,9 +17,11 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 public class CaseService {
 
     private final ElasticsearchOperations elasticsearchOperations;
+    private final CaseRepository caseRepository;
 
-    public CaseService(ElasticsearchOperations elasticsearchOperations) {
+    public CaseService(ElasticsearchOperations elasticsearchOperations, CaseRepository caseRepository) {
         this.elasticsearchOperations = elasticsearchOperations;
+        this.caseRepository = caseRepository;
     }
 
     public Page<Case> search(String query, int page) {
@@ -40,7 +36,9 @@ public class CaseService {
                 .withPageable(PageRequest.of(page, 15))
                 .build();
 
-        Page<Case> cases = this.elasticsearchOperations.queryForPage(searchQuery, Case.class);
+        Page<Case> cases = this.caseRepository.search(searchQuery);
+
+//        Page<Case> cases = this.elasticsearchOperations.queryForPage(searchQuery, Case.class);
         log.info("end query");
         return cases;
     }
