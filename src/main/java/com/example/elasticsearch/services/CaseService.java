@@ -3,6 +3,7 @@ package com.example.elasticsearch.services;
 import com.example.elasticsearch.model.Case;
 import com.example.elasticsearch.repositories.CaseRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.Operator;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,8 +27,8 @@ public class CaseService {
     }
 
     public Page<Case> search(String query, int page) {
-        log.info("start query");
         String q = this.createWildcardQuery(query);
+        log.info("start query '{}'", q);
 
         QueryStringQueryBuilder queryStringQueryBuilder = new QueryStringQueryBuilder(q);
         queryStringQueryBuilder.field("owner.firstname", 2);
@@ -36,6 +37,7 @@ public class CaseService {
         queryStringQueryBuilder.field("address.postalcode");
         queryStringQueryBuilder.field("address.sublocality");
         queryStringQueryBuilder.field("advisor.shorthandSymbol");
+        queryStringQueryBuilder.defaultOperator(Operator.AND);
 
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withIndices("cases")
