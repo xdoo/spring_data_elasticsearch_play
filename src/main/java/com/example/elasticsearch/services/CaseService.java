@@ -42,11 +42,10 @@ public class CaseService {
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withIndices("cases")
                 .withQuery(queryStringQueryBuilder)
-                .withPageable(PageRequest.of(page, 15))
+                .withPageable(PageRequest.of(page, 10))
                 .build();
 
         Page<Case> cases = this.caseRepository.search(searchQuery);
-        log.info("end query");
         return cases;
     }
 
