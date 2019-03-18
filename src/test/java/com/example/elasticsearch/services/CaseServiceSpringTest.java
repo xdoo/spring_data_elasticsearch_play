@@ -31,7 +31,7 @@ public class CaseServiceSpringTest {
     public void testSearch() {
         Case case01 = new Case();
         case01.setId("CASE000001");
-        case01.setTitle("qwertitle");
+        case01.setTitle("Footitle");
         case01.setDescription("Some description...");
         Address address01 = new Address();
         address01.setStreet("Foostraße");
@@ -60,18 +60,10 @@ public class CaseServiceSpringTest {
         this.caseRepository.save(case03);
 
 
-        Page<Case> cases01 = this.caseService.search("Fooweg", 0);
+        Page<Case> cases01 = this.caseService.search("Foo", 0);
 
-        assertThat(cases01.getTotalElements(), is(equalTo(1L)));
+        assertThat(cases01.getTotalElements(), is(equalTo(2L)));
 
-        log.info("Anzahl Seite -> {}", cases01.getTotalPages());
-        log.info("Anzahl Fälle -> {}", cases01.getTotalElements());
 
-        cases01.get().forEach(c -> {
-            log.info("Fall Titel: {}", c.toString());
-        });
-
-        Optional<Case> case000002 = this.caseRepository.findById("CASE000002");
-        log.info("case000002 -> {}", case000002.get().toString());
     }
 }

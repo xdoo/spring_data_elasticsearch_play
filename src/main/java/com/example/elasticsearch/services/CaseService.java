@@ -3,6 +3,7 @@ package com.example.elasticsearch.services;
 import com.example.elasticsearch.model.Case;
 import com.example.elasticsearch.repositories.CaseRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
@@ -28,17 +29,21 @@ public class CaseService {
         log.info("start query");
         String q = this.createWildcardQuery(query);
 
+        QueryStringQueryBuilder queryStringQueryBuilder = new QueryStringQueryBuilder(q);
+        queryStringQueryBuilder.field("owner.firstname", 2);
+        queryStringQueryBuilder.field("owner.lastname", 3);
+        queryStringQueryBuilder.field("address.street", 2);
+        queryStringQueryBuilder.field("address.postalcode");
+        queryStringQueryBuilder.field("address.sublocality");
+        queryStringQueryBuilder.field("advisor.shorthandSymbol");
+
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withIndices("cases")
-//                .withFields("owner.firstname^2", "owner.lastname^3", "address.street^2", "address.postalCode", "address.sublocality", "advisor.shorthandSymbol^5")
-                .withFields("address.street", "address.sublocality")
-                .withQuery(queryStringQuery(q))
+                .withQuery(queryStringQueryBuilder)
                 .withPageable(PageRequest.of(page, 15))
                 .build();
 
         Page<Case> cases = this.caseRepository.search(searchQuery);
-
-//        Page<Case> cases = this.elasticsearchOperations.queryForPage(searchQuery, Case.class);
         log.info("end query");
         return cases;
     }
