@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/case")
 @Slf4j
@@ -21,6 +23,11 @@ public class CaseController {
     public Page<Case> search(@PathVariable(value = "query") String query, @PathVariable(value = "page") int page) {
         Page<Case> cases = this.caseService.search(query, page);
         return cases;
+    }
+
+    @GetMapping("/search/suggest/{query}")
+    public List<String> suggest(@PathVariable(value = "query") String query) {
+        return this.caseService.suggest(query);
     }
 
 }
