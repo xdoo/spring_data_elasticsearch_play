@@ -3,9 +3,11 @@ package com.example.elasticsearch.model;
 import com.example.elasticsearch.model.tasks.Task;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.CompletionField;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
+import org.springframework.data.elasticsearch.core.completion.Completion;
 
 import java.util.ArrayList;
 
@@ -29,4 +31,7 @@ public class Case {
     Citizen owner;
     @Field(type = FieldType.Nested, includeInParent = true)
     Advisor advisor;
+
+    @CompletionField
+    Completion suggest;
 }
