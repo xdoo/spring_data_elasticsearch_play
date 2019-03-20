@@ -17,6 +17,7 @@ import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 import com.thedeanda.lorem.Lorem;
 import com.thedeanda.lorem.LoremIpsum;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,7 @@ import org.junit.runner.RunWith;
 import org.kohsuke.randname.RandomNameGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.elasticsearch.core.completion.Completion;
 import org.springframework.data.elasticsearch.core.geo.GeoPoint;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -298,12 +300,45 @@ public class ElasticsearchApplicationTests {
 
             aCase.getTasks().addAll(tasks);
 
+            // Completion erstellen
+            Completion completion = this.createCompletion(
+                    aCase.getOwner().getFirstname(),
+                    aCase.getOwner().getLastname(),
+                    aCase.getAddress().getStreet(),
+                    aCase.getAddress().getPostalCode(),
+                    aCase.getAddress().getSublocality(),
+                    aCase.getAdvisor().getShorthandSymbol()
+            );
+            aCase.setSuggest(completion);
+
             this.caseRepository.save(aCase);
 
             cnt++;
             log.info("counter: {}", cnt);
         }
 
+    }
+
+    @Test
+    public void updateCasesWithSuggestions() {
+        Iterable<Case> allCases = this.caseRepository.findAll();
+        allCases.forEach(c -> {
+            try {
+                // Completion erstellen
+                Completion completion = this.createCompletion(
+                        c.getOwner().getFirstname(),
+                        c.getOwner().getLastname(),
+                        c.getAddress().getStreet(),
+                        c.getAddress().getPostalCode(),
+                        c.getAddress().getSublocality(),
+                        c.getAdvisor().getShorthandSymbol()
+                );
+                c.setSuggest(completion);
+                this.caseRepository.save(c);
+            } catch (Exception ex) {
+                log.warn("Konnte Datensatz {} keine suggestion hinzufügen.", c.getId());
+            }
+        });
     }
 
     @Test
@@ -319,6 +354,46 @@ public class ElasticsearchApplicationTests {
         tasks.forEach(t -> {
             log.info("Task: " + t.toString());
         });
+    }
+
+    @Test
+    public void testCompletionBuilder() {
+        Completion completion = this.createCompletion("Hans", "Wurst", "Haupstraße", "80992", "Moosach", "FOO");
+        String[] input = completion.getInput();
+        for(int i = 0; i < input.length; i++ ) {
+            log.info(input[i]);
+        }
+    }
+
+    private Completion createCompletion(@NonNull  String firstname, @NonNull String lastname, @NonNull String street, @NonNull String postalcode, @NonNull String sublocality, @NonNull String shorthandsymbol) {
+        String[] suggestions = new String[22];
+
+        suggestions[0] = firstname;
+        suggestions[1] = firstname + " " + lastname;
+        suggestions[2] = lastname + " " + firstname;
+        suggestions[3] = firstname + " " + lastname + " " + sublocality;
+        suggestions[4] = firstname + " " + lastname + " " + street;
+        suggestions[5] = firstname + " " + lastname + " " + sublocality + " " + street;
+        suggestions[6] = sublocality + " " + street;
+        suggestions[7] = lastname;
+        suggestions[8] = sublocality;
+        suggestions[9] = street;
+        suggestions[10] = shorthandsymbol;
+        suggestions[11] = street + " " + sublocality;
+        suggestions[12] = street + " " + sublocality + " " + lastname;
+        suggestions[13] = street + " " + sublocality + " " + lastname + " " + firstname;
+        suggestions[14] = firstname + " " + lastname + " " + shorthandsymbol;
+        suggestions[15] = lastname + " " + firstname + " " + shorthandsymbol;
+        suggestions[16] = street + " " + sublocality + " " + shorthandsymbol;
+        suggestions[17] = sublocality + " " + street + " " + shorthandsymbol;
+        suggestions[18] = postalcode;
+        suggestions[19] = postalcode + " " + street;
+        suggestions[20] = postalcode + " " + sublocality;
+        suggestions[21] = postalcode + " " + sublocality + " " + street;
+
+        Completion completion = new Completion(suggestions);
+
+        return completion;
     }
 
     private List<Task> randomTasks(List<Date> dates, Advisor advisor, Boolean finished) {

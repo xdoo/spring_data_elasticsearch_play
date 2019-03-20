@@ -75,7 +75,7 @@ public class CaseService {
      * @return
      */
     public List<String> suggest(String query) {
-        CompletionSuggestionBuilder suggest = SuggestBuilders.completionSuggestion("suggest").prefix(query, Fuzziness.TWO).skipDuplicates(true);
+        CompletionSuggestionBuilder suggest = SuggestBuilders.completionSuggestion("suggest").prefix(query, Fuzziness.TWO).skipDuplicates(true).size(5);
         ElasticsearchRestTemplate template = (ElasticsearchRestTemplate)this.elasticsearchOperations;
         SearchResponse searchResponse = template.suggest(new SuggestBuilder().addSuggestion(CASE_SUGGEST, suggest), Case.class);
 
