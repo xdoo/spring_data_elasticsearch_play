@@ -27,6 +27,7 @@ public class CaseController {
 
     @GetMapping("/search/suggest/{query}")
     public List<String> suggest(@PathVariable(value = "query") String query) {
+        log.info("suggest for {}", query);
         return this.caseService.suggest(query);
     }
 

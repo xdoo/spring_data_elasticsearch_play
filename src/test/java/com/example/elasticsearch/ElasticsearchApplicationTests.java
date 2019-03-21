@@ -366,7 +366,7 @@ public class ElasticsearchApplicationTests {
     }
 
     private Completion createCompletion(@NonNull  String firstname, @NonNull String lastname, @NonNull String street, @NonNull String postalcode, @NonNull String sublocality, @NonNull String shorthandsymbol) {
-        String[] suggestions = new String[22];
+        String[] suggestions = new String[18];
 
         suggestions[0] = firstname;
         suggestions[1] = firstname + " " + lastname;
@@ -386,10 +386,6 @@ public class ElasticsearchApplicationTests {
         suggestions[15] = lastname + " " + firstname + " " + shorthandsymbol;
         suggestions[16] = street + " " + sublocality + " " + shorthandsymbol;
         suggestions[17] = sublocality + " " + street + " " + shorthandsymbol;
-        suggestions[18] = postalcode;
-        suggestions[19] = postalcode + " " + street;
-        suggestions[20] = postalcode + " " + sublocality;
-        suggestions[21] = postalcode + " " + sublocality + " " + street;
 
         Completion completion = new Completion(suggestions);
 
