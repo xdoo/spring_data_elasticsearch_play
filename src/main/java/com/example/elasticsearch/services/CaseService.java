@@ -144,6 +144,10 @@ public class CaseService {
         }
     }
 
+    public Page<Case> findBookmarkedCasesForAdvisor(String advisorId, int page) {
+        return this.search("Bookmark " + advisorId, page);
+    }
+
     public String createWildcardQuery(String query) {
         StringBuilder queryBuilder = new StringBuilder();
         String[] words = query.split(" ");

@@ -44,4 +44,10 @@ public class CaseController {
         this.caseService.removeBookmark(caseId, advisorId);
     }
 
+    @GetMapping("/bookmark/{advisor_id}/{page}")
+    public Page<Case> getBookmarks(@PathVariable(value = "advisor_id") String advisorId, @PathVariable(value = "page") int page) {
+        Page<Case> bookmarks = this.caseService.findBookmarkedCasesForAdvisor(advisorId, page);
+        return bookmarks;
+    }
+
 }
