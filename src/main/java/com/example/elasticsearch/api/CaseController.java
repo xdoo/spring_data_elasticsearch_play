@@ -39,4 +39,9 @@ public class CaseController {
         this.caseService.bookmark(caseId, advisorId);
     }
 
+    @DeleteMapping("/bookmark/{case_id}/{advisor_id}")
+    public void removeBookmark(@PathVariable(value = "case_id") String caseId, @PathVariable(value = "advisor_id") String advisorId) {
+        this.caseService.removeBookmark(caseId, advisorId);
+    }
+
 }
