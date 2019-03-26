@@ -17,7 +17,7 @@ public class WebConfig implements WebMvcConfigurer {
         CorsRegistration registration = registry.addMapping("/**");
 
         registration.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS");
-        registration.allowedOrigins("http://localhost", "http://search.xdoo.io");
+        registration.allowedOrigins("http://localhost:8080", "http://search.xdoo.io");
 
     }
 }
