@@ -9,7 +9,7 @@ public class CaseServiceTest {
 
     @Test
     public void testCreateWildcardQuery() {
-        CaseService caseService = new CaseService(null, null, advisorRepository);
+        CaseService caseService = new CaseService(null, null, null);
         String query = caseService.createWildcardQuery("Max Alt");
         assertThat(query, is(equalTo("Max* Alt* ")));
     }

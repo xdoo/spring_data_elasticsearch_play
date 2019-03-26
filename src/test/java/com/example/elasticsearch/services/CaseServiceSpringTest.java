@@ -1,7 +1,9 @@
 package com.example.elasticsearch.services;
 
 import com.example.elasticsearch.model.Address;
+import com.example.elasticsearch.model.Advisor;
 import com.example.elasticsearch.model.Case;
+import com.example.elasticsearch.repositories.AdvisorRepository;
 import com.example.elasticsearch.repositories.CaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -23,6 +25,9 @@ public class CaseServiceSpringTest {
 
     @Autowired
     CaseService caseService;
+
+    @Autowired
+    AdvisorRepository advisorRepository;
 
     @Autowired
     CaseRepository caseRepository;
@@ -63,7 +68,40 @@ public class CaseServiceSpringTest {
         Page<Case> cases01 = this.caseService.search("Foo", 0);
 
         assertThat(cases01.getTotalElements(), is(equalTo(2L)));
+    }
 
+    @Test
+    public void testAddAndRemoveBookmark() throws Exception {
+        this.caseRepository.deleteById("CASE000001");
+
+        Case case01 = new Case();
+        case01.setId("CASE000001");
+        case01.setTitle("Footitle");
+        case01.setDescription("Some description...");
+        Address address01 = new Address();
+        address01.setStreet("Foostraße");
+        address01.setSublocality("Moosach");
+        case01.setAddress(address01);
+
+        this.caseRepository.save(case01);
+
+        Advisor add01 = new Advisor();
+        add01.setId("ADVISOR001");
+        add01.setShorthandSymbol("ADV01");
+        add01.setFirstname("Foo");
+        add01.setLastname("Bar");
+        this.advisorRepository.save(add01);
+
+        this.caseService.bookmark("CASE000001", "ADVISOR001");
+
+        Optional<Case> optionalCase01 = this.caseRepository.findById("CASE000001");
+        assertThat(optionalCase01.isPresent(), is(true));
+        assertThat(optionalCase01.get().getTasks().size(), is(equalTo(1)));
+
+        this.caseService.removeBookmark("CASE000001", "ADVISOR001");
+        Optional<Case> optionalCase02 = this.caseRepository.findById("CASE000001");
+        assertThat(optionalCase02.isPresent(), is(true));
+        assertThat(optionalCase02.get().getTasks().size(), is(equalTo(0)));
 
     }
 }

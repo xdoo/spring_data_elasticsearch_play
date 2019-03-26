@@ -133,9 +133,12 @@ public class CaseService {
             Case aCase = optionalCase.get();
 
             ArrayList<Task> tasks = aCase.getTasks();
-            tasks.stream()
+            List<Task> bookmarks = tasks.stream()
                     .filter(c -> c instanceof BookmarkTask && c.getAdvisorId().equals(advisorId))
-                    .anyMatch(c -> tasks.remove(c));
+                    .collect(Collectors.toList());
+            bookmarks.forEach(b -> tasks.remove(b));
+
+            this.caseRepository.save(aCase);
         } else {
             log.error("Cannot find case ({}) or advisor ({}).", caseId, advisorId);
         }

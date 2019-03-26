@@ -36,7 +36,7 @@ public class CaseController {
         // an dieser Stelle würde die Nutzter ID mitkommen. Dann könnte der
         // entsprechende Sachbearbeiter zum Bookmark gespeichert werden. Da
         // wir hier ohne Security arbeiten, wird sie über die URL übertragen.
-
+        this.caseService.bookmark(caseId, advisorId);
     }
 
 }
