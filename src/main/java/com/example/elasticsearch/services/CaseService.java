@@ -1,6 +1,10 @@
 package com.example.elasticsearch.services;
 
+import com.example.elasticsearch.model.Advisor;
 import com.example.elasticsearch.model.Case;
+import com.example.elasticsearch.model.tasks.BookmarkTask;
+import com.example.elasticsearch.model.tasks.Task;
+import com.example.elasticsearch.repositories.AdvisorRepository;
 import com.example.elasticsearch.repositories.CaseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
@@ -20,9 +24,10 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilde
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -30,12 +35,14 @@ public class CaseService {
 
     private final ElasticsearchOperations elasticsearchOperations;
     private final CaseRepository caseRepository;
+    private final AdvisorRepository advisorRepository;
 
     public final static String CASE_SUGGEST = "case-suggest";
 
-    public CaseService(ElasticsearchOperations elasticsearchOperations, CaseRepository caseRepository) {
+    public CaseService(ElasticsearchOperations elasticsearchOperations, CaseRepository caseRepository, AdvisorRepository advisorRepository) {
         this.elasticsearchOperations = elasticsearchOperations;
         this.caseRepository = caseRepository;
+        this.advisorRepository = advisorRepository;
     }
 
     /**
@@ -87,6 +94,51 @@ public class CaseService {
         });
 
         return result;
+    }
+
+    /**
+     * Erstellt ein Bookmark für den Fall.
+     *
+     * @param caseId
+     * @param advisorId
+     */
+    public void bookmark(String caseId, String advisorId) {
+        Optional<Case> optionalCase = this.caseRepository.findById(caseId);
+        Optional<Advisor> optionalAdvisor = this.advisorRepository.findById(advisorId);
+        if(optionalCase.isPresent() && optionalAdvisor.isPresent()) {
+            Case aCase = optionalCase.get();
+            Advisor advisor = optionalAdvisor.get();
+
+            BookmarkTask bookmarkTask = new BookmarkTask();
+            bookmarkTask.setAdvisorId(advisorId);
+            bookmarkTask.setAdvisorShorthandSymbol(advisor.getShorthandSymbol());
+            bookmarkTask.setCreated(new Date());
+
+            aCase.getTasks().add(bookmarkTask);
+            this.caseRepository.save(aCase);
+        } else {
+            log.error("Cannot find case ({}) or advisor ({}).", caseId, advisorId);
+        }
+    }
+
+    /**
+     * Entfernt das Bookmark für den Fall
+     *
+     * @param caseId
+     * @param advisorId
+     */
+    public void removeBookmark(String caseId, String advisorId) {
+        Optional<Case> optionalCase = this.caseRepository.findById(caseId);
+        if(optionalCase.isPresent()) {
+            Case aCase = optionalCase.get();
+
+            ArrayList<Task> tasks = aCase.getTasks();
+            tasks.stream()
+                    .filter(c -> c instanceof BookmarkTask && c.getAdvisorId().equals(advisorId))
+                    .anyMatch(c -> tasks.remove(c));
+        } else {
+            log.error("Cannot find case ({}) or advisor ({}).", caseId, advisorId);
+        }
     }
 
     public String createWildcardQuery(String query) {

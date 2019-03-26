@@ -31,4 +31,12 @@ public class CaseController {
         return this.caseService.suggest(query);
     }
 
+    @PutMapping("/bookmark/{case_id}/{advisor_id}")
+    public void bookmark(@PathVariable(value = "case_id") String caseId, @PathVariable(value = "advisor_id") String advisorId) {
+        // an dieser Stelle würde die Nutzter ID mitkommen. Dann könnte der
+        // entsprechende Sachbearbeiter zum Bookmark gespeichert werden. Da
+        // wir hier ohne Security arbeiten, wird sie über die URL übertragen.
+
+    }
+
 }
