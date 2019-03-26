@@ -26,4 +26,10 @@ public class SessionController {
         return ResponseEntity.ok().body(this.sessionService.getElasticSearchSession());
     }
 
+    @GetMapping("/ping")
+    public ResponseEntity ping() {
+        log.info("ping received...");
+        return ResponseEntity.ok(true);
+    }
+
 }
