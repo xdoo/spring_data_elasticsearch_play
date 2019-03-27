@@ -33,6 +33,7 @@ public class CaseController {
 
     @PutMapping("/bookmark/{case_id}/{advisor_id}")
     public void bookmark(@PathVariable(value = "case_id") String caseId, @PathVariable(value = "advisor_id") String advisorId) {
+        log.info("bookmarking case {} for advisor {}", caseId, advisorId);
         // an dieser Stelle würde die Nutzter ID mitkommen. Dann könnte der
         // entsprechende Sachbearbeiter zum Bookmark gespeichert werden. Da
         // wir hier ohne Security arbeiten, wird sie über die URL übertragen.
@@ -46,6 +47,7 @@ public class CaseController {
 
     @GetMapping("/bookmark/{advisor_id}/{page}")
     public Page<Case> getBookmarks(@PathVariable(value = "advisor_id") String advisorId, @PathVariable(value = "page") int page) {
+        log.info("loading bookmarks for {}", advisorId);
         Page<Case> bookmarks = this.caseService.findBookmarkedCasesForAdvisor(advisorId, page);
         return bookmarks;
     }

@@ -1,11 +1,13 @@
 package com.example.elasticsearch.services;
 
+import ch.qos.logback.classic.Logger;
 import com.example.elasticsearch.model.Advisor;
 import com.example.elasticsearch.model.Case;
 import com.example.elasticsearch.model.tasks.BookmarkTask;
 import com.example.elasticsearch.model.tasks.Task;
 import com.example.elasticsearch.repositories.AdvisorRepository;
 import com.example.elasticsearch.repositories.CaseRepository;
+import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.Fuzziness;
@@ -23,6 +25,9 @@ import org.springframework.data.elasticsearch.core.query.NativeSearchQuery;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -72,6 +77,7 @@ public class CaseService {
                 .build();
 
         Page<Case> cases = this.caseRepository.search(searchQuery);
+        log.info("found {}", cases.getTotalElements());
         return cases;
     }
 
@@ -144,8 +150,30 @@ public class CaseService {
         }
     }
 
+    /**
+     *
+     * @param advisorId
+     * @param page
+     * @return
+     */
     public Page<Case> findBookmarkedCasesForAdvisor(String advisorId, int page) {
-        return this.search("Bookmark " + advisorId, page);
+
+        String q = "Bookmark* " + advisorId.trim() + "*";
+        log.info("query for {}", q);
+        QueryStringQueryBuilder queryStringQueryBuilder = new QueryStringQueryBuilder(q);
+        queryStringQueryBuilder.field("tasks.type");
+        queryStringQueryBuilder.field("tasks.advisorId");
+        queryStringQueryBuilder.defaultOperator(Operator.AND);
+
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withIndices("cases")
+                .withQuery(queryStringQueryBuilder)
+                .withPageable(PageRequest.of(page, 10))
+                .build();
+
+        Page<Case> page1 = this.caseRepository.search(searchQuery);
+        log.info("results: {}", page1.getTotalElements());
+        return page1;
     }
 
     public String createWildcardQuery(String query) {
