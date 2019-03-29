@@ -158,7 +158,7 @@ public class ElasticsearchApplicationTests {
 //	@Test
 //	public void testSave() {
 //        Case one = this.services.saveOne("BBB");
-//        log.info("ID --> {}", one.getId());
+//        log.info("ID --> {}", one.getValue());
 //        one.setDescription("Hansi Booo");
 //        this.services.updateIt(one);
 //    }
@@ -587,10 +587,10 @@ public class ElasticsearchApplicationTests {
 
 //    @Test
 //    public void testSaveId() {
-//        String id = RandomStringUtils.randomAlphanumeric(20).toUpperCase();
-//        log.info("ID --> {}", id);
-//        Case aCase = this.services.saveSomething(id, "ZZZZ");
-//        log.info("ID --> {}", aCase.getId());
+//        String value = RandomStringUtils.randomAlphanumeric(20).toUpperCase();
+//        log.info("ID --> {}", value);
+//        Case aCase = this.services.saveSomething(value, "ZZZZ");
+//        log.info("ID --> {}", aCase.getValue());
 //
 //        // add geopoint
 //        GeoPoint geoPoint = new GeoPoint(48.173243, 11.536002);
@@ -606,18 +606,18 @@ public class ElasticsearchApplicationTests {
 //        LetterTask letterTask = new LetterTask();
 //        letterTask.setComment("Ok - Brief gesendet");
 //
-//        log.info("suche per id");
+//        log.info("suche per value");
 //
 //        ArrayList<Task> tasks = Lists.newArrayList(visitTask, letterTask);
 //        aCase1.setTasks(tasks);
 //        this.services.updateIt(aCase1);
 //
-//        Optional<Case> optionalCase = this.caseRepository.findById(id);
+//        Optional<Case> optionalCase = this.caseRepository.findById(value);
 //        if(optionalCase.isPresent()) {
 //            log.info("gefunden: {}", optionalCase.get().getTitle());
 //        }
 //
-////        this.caseRepository.deleteById(id);
+////        this.caseRepository.deleteById(value);
 //
 //    }
 
