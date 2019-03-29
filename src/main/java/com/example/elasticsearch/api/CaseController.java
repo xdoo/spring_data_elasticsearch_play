@@ -19,18 +19,6 @@ public class CaseController {
         this.caseService = caseService;
     }
 
-    @GetMapping("/search/{query}/{page}")
-    public Page<Case> search(@PathVariable(value = "query") String query, @PathVariable(value = "page") int page) {
-        Page<Case> cases = this.caseService.search(query, page);
-        return cases;
-    }
-
-    @GetMapping("/search/suggest/{query}")
-    public List<String> suggest(@PathVariable(value = "query") String query) {
-        log.info("suggest for {}", query);
-        return this.caseService.suggest(query);
-    }
-
     @PutMapping("/bookmark/{case_id}/{advisor_id}")
     public void bookmark(@PathVariable(value = "case_id") String caseId, @PathVariable(value = "advisor_id") String advisorId) {
         log.info("bookmarking case {} for advisor {}", caseId, advisorId);

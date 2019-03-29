@@ -51,58 +51,6 @@ public class CaseService {
     }
 
     /**
-     * pageable wildcard search
-     *
-     * @param query
-     * @param page
-     * @return
-     */
-    public Page<Case> search(String query, int page) {
-        String q = this.createWildcardQuery(query);
-        log.info("start query '{}'", q);
-
-        QueryStringQueryBuilder queryStringQueryBuilder = new QueryStringQueryBuilder(q);
-        queryStringQueryBuilder.field("owner.firstname", 2);
-        queryStringQueryBuilder.field("owner.lastname", 3);
-        queryStringQueryBuilder.field("address.street", 2);
-        queryStringQueryBuilder.field("address.postalcode");
-        queryStringQueryBuilder.field("address.sublocality");
-        queryStringQueryBuilder.field("advisor.shorthandSymbol");
-        queryStringQueryBuilder.defaultOperator(Operator.AND);
-
-        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
-                .withIndices("cases")
-                .withQuery(queryStringQueryBuilder)
-                .withPageable(PageRequest.of(page, 10))
-                .build();
-
-        Page<Case> cases = this.caseRepository.search(searchQuery);
-        log.info("found {}", cases.getTotalElements());
-        return cases;
-    }
-
-    /**
-     * suggestions for case index
-     *
-     * @param query
-     * @return
-     */
-    public List<String> suggest(String query) {
-        CompletionSuggestionBuilder suggest = SuggestBuilders.completionSuggestion("suggest").prefix(query, Fuzziness.TWO).skipDuplicates(true).size(5);
-        ElasticsearchRestTemplate template = (ElasticsearchRestTemplate)this.elasticsearchOperations;
-        SearchResponse searchResponse = template.suggest(new SuggestBuilder().addSuggestion(CASE_SUGGEST, suggest), Case.class);
-
-        // extract text
-        List<? extends Suggest.Suggestion.Entry.Option> options = searchResponse.getSuggest().getSuggestion(CASE_SUGGEST).getEntries().get(0).getOptions();
-        List<String> result = new ArrayList<>();
-        options.forEach(o -> {
-            result.add(o.getText().string());
-        });
-
-        return result;
-    }
-
-    /**
      * Erstellt ein Bookmark für den Fall.
      *
      * @param caseId
@@ -174,15 +122,6 @@ public class CaseService {
         Page<Case> page1 = this.caseRepository.search(searchQuery);
         log.info("results: {}", page1.getTotalElements());
         return page1;
-    }
-
-    public String createWildcardQuery(String query) {
-        StringBuilder queryBuilder = new StringBuilder();
-        String[] words = query.split(" ");
-        for(int i = 0; i < words.length; i++) {
-            queryBuilder.append(words[i]).append("* ");
-        }
-        return queryBuilder.toString();
     }
 
 }

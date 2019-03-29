@@ -27,6 +27,9 @@ public class CaseServiceSpringTest {
     CaseService caseService;
 
     @Autowired
+    SearchService searchService;
+
+    @Autowired
     AdvisorRepository advisorRepository;
 
     @Autowired
@@ -65,7 +68,7 @@ public class CaseServiceSpringTest {
         this.caseRepository.save(case03);
 
 
-        Page<Case> cases01 = this.caseService.search("Foo", 0);
+        Page<Case> cases01 = this.searchService.search("Foo", 0);
 
         assertThat(cases01.getTotalElements(), is(equalTo(2L)));
     }
