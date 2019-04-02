@@ -29,9 +29,12 @@ public class SearchController {
         return cases;
     }
 
-    @GetMapping("/suggestionterm/{query}/{page}")
-    public Page<Case> searchWithSuggestionTerm(@PathVariable(value = "query") String query, @PathVariable(value = "page") int page) {
-        return this.searchService.searchWithSuggestionTerm(query, page);
+    @GetMapping("/suggestionterm/{query}/{advisor_id}/{page}")
+    public Page<Case> searchWithSuggestionTerm(
+            @PathVariable(value = "query") String query,
+            @PathVariable(value = "advisor_id") String advisorId,
+            @PathVariable(value = "page") int page) {
+        return this.searchService.searchWithSuggestionTerm(query, advisorId, page);
     }
 
     @GetMapping("/simplesuggest/{query}")
