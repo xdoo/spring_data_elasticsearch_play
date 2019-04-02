@@ -80,7 +80,7 @@ public class SearchService {
                 .withQuery(termQuery("suggestionTerms", query))
                 .withPageable(PageRequest.of(page, 10))
                 .build();
-        
+
         Page<Case> cases = this.caseRepository.search(searchQuery);
         log.info("found {}", cases.getTotalElements());
         return cases;
@@ -119,6 +119,12 @@ public class SearchService {
         Page<Case> bookmarks = this.searchBookmarkedCases(query, advisorId);
 
         List<ComplexSuggestDto> results = new ArrayList<>();
+
+        // ganz vorne kommt die Suchanfrage selbst
+        ComplexSuggestDto wildcardSuggestDto = new ComplexSuggestDto();
+        wildcardSuggestDto.setSuggestion(query);
+        wildcardSuggestDto.setType("wildcard");
+        results.add(wildcardSuggestDto);
 
         // erst die suggests
         suggest.forEach(s -> {
