@@ -74,6 +74,18 @@ public class SearchService {
         return cases;
     }
 
+    public Page<Case> searchWithSuggestionTerm(String query, int page) {
+        NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
+                .withIndices("cases")
+                .withQuery(termQuery("suggestionTerms", query))
+                .withPageable(PageRequest.of(page, 10))
+                .build();
+        
+        Page<Case> cases = this.caseRepository.search(searchQuery);
+        log.info("found {}", cases.getTotalElements());
+        return cases;
+    }
+
     /**
      * suggestions for case index
      *

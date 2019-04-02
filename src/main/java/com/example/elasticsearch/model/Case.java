@@ -34,4 +34,6 @@ public class Case {
 
     @CompletionField
     Completion suggest;
+    @Field(type = FieldType.Keyword)
+    String[] suggestionTerms;
 }

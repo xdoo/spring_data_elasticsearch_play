@@ -301,15 +301,18 @@ public class ElasticsearchApplicationTests {
             aCase.getTasks().addAll(tasks);
 
             // Completion erstellen
-            Completion completion = this.createCompletion(
+            String[] suggestions = this.createCompletion(
                     aCase.getOwner().getFirstname(),
                     aCase.getOwner().getLastname(),
                     aCase.getAddress().getStreet(),
                     aCase.getAddress().getPostalCode(),
                     aCase.getAddress().getSublocality(),
-                    aCase.getAdvisor().getShorthandSymbol()
-            );
-            aCase.setSuggest(completion);
+                    aCase.getAdvisor().getShorthandSymbol());
+
+            // search terms
+            aCase.setSuggestionTerms(suggestions);
+
+            aCase.setSuggest(new Completion(suggestions));
 
             this.caseRepository.save(aCase);
 
@@ -325,7 +328,7 @@ public class ElasticsearchApplicationTests {
         allCases.forEach(c -> {
             try {
                 // Completion erstellen
-                Completion completion = this.createCompletion(
+                String[] suggestions = this.createCompletion(
                         c.getOwner().getFirstname(),
                         c.getOwner().getLastname(),
                         c.getAddress().getStreet(),
@@ -333,7 +336,8 @@ public class ElasticsearchApplicationTests {
                         c.getAddress().getSublocality(),
                         c.getAdvisor().getShorthandSymbol()
                 );
-                c.setSuggest(completion);
+                c.setSuggestionTerms(suggestions);
+//                c.setSuggest(new Completion(suggestions));
                 this.caseRepository.save(c);
             } catch (Exception ex) {
                 log.warn("Konnte Datensatz {} keine suggestion hinzufügen.", c.getId());
@@ -358,14 +362,14 @@ public class ElasticsearchApplicationTests {
 
     @Test
     public void testCompletionBuilder() {
-        Completion completion = this.createCompletion("Hans", "Wurst", "Haupstraße", "80992", "Moosach", "FOO");
+        Completion completion = new Completion( this.createCompletion("Hans", "Wurst", "Haupstraße", "80992", "Moosach", "FOO"));
         String[] input = completion.getInput();
         for(int i = 0; i < input.length; i++ ) {
             log.info(input[i]);
         }
     }
 
-    private Completion createCompletion(@NonNull  String firstname, @NonNull String lastname, @NonNull String street, @NonNull String postalcode, @NonNull String sublocality, @NonNull String shorthandsymbol) {
+    private String[] createCompletion(@NonNull  String firstname, @NonNull String lastname, @NonNull String street, @NonNull String postalcode, @NonNull String sublocality, @NonNull String shorthandsymbol) {
         String[] suggestions = new String[18];
 
         suggestions[0] = firstname;
@@ -387,9 +391,7 @@ public class ElasticsearchApplicationTests {
         suggestions[16] = street + " " + sublocality + " " + shorthandsymbol;
         suggestions[17] = sublocality + " " + street + " " + shorthandsymbol;
 
-        Completion completion = new Completion(suggestions);
-
-        return completion;
+        return suggestions;
     }
 
     private List<Task> randomTasks(List<Date> dates, Advisor advisor, Boolean finished) {
