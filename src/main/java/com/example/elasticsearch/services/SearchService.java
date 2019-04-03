@@ -153,7 +153,7 @@ public class SearchService {
      * @return
      */
     public List<ComplexSuggestDto> complexSuggest(String query, String advisorId) {
-        List<String> suggest = this.suggest(query, 4);
+        List<String> suggest = this.suggest(query, 3);
         Page<Case> bookmarks = this.searchBookmarkedCases(query, advisorId);
         Page<Search> searches = this.searchSearchPhrases(query, advisorId);
 
