@@ -18,6 +18,7 @@ import java.util.List;
 public class Advisor {
 
     @Id
+    @Field(type = FieldType.Keyword)
     String id;
     @Field(type = FieldType.Text)
     @NonNull
