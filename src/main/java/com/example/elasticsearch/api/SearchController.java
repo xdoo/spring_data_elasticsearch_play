@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -23,9 +24,17 @@ public class SearchController {
         this.searchService = searchService;
     }
 
-    @GetMapping("/{query}/{page}")
-    public Page<Case> search(@PathVariable(value = "query") String query, @PathVariable(value = "page") int page) {
-        Page<Case> cases = this.searchService.search(query, page);
+    @GetMapping("/{query}/{page}/{my_case_filter}")
+    public Page<Case> search(
+            @PathVariable(value = "query") String query, 
+            @PathVariable(value = "page") int page,
+            @PathVariable(value = "my_case_filter") String myCaseFilter) {
+        
+        // Filter Attribute aufarbeiten
+        HashMap<String, Object> filters = new HashMap<>();
+        filters.put(SearchService.MY_CASE_FILTER, myCaseFilter);
+
+        Page<Case> cases = this.searchService.search(query, page, filters);
         return cases;
     }
 

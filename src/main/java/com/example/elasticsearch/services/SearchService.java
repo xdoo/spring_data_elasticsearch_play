@@ -6,11 +6,14 @@ import com.example.elasticsearch.model.Search;
 import com.example.elasticsearch.repositories.AdvisorRepository;
 import com.example.elasticsearch.repositories.CaseRepository;
 import com.example.elasticsearch.repositories.SearchRepository;
+import com.google.common.base.Strings;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.unit.Fuzziness;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.Operator;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.QueryStringQueryBuilder;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.SuggestBuilder;
@@ -28,6 +31,7 @@ import static org.elasticsearch.index.query.QueryBuilders.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -38,6 +42,8 @@ public class SearchService {
     private final CaseRepository caseRepository;
     private final AdvisorRepository advisorRepository;
     private final SearchRepository searchRepository;
+
+    public final static String MY_CASE_FILTER = "my_case_filter";
 
     public final static String CASE_SUGGEST = "case-suggest";
 
@@ -55,7 +61,7 @@ public class SearchService {
      * @param page
      * @return
      */
-    public Page<Case> search(String query, int page) {
+    public Page<Case> search(String query, int page, Map<String, Object> filters) {
         String q = this.createWildcardQuery(query);
         log.info("start query '{}'", q);
 
@@ -68,9 +74,18 @@ public class SearchService {
         queryStringQueryBuilder.field("advisor.shorthandSymbol");
         queryStringQueryBuilder.defaultOperator(Operator.AND);
 
+        BoolQueryBuilder queryBuilder = QueryBuilders.boolQuery()
+                .must(queryStringQueryBuilder);
+
+        // Filter
+        String myCaseFilter = (String) filters.get(MY_CASE_FILTER);
+        if(!Strings.isNullOrEmpty(myCaseFilter)) {
+            queryBuilder.filter(termQuery("owner.id", myCaseFilter));
+        }
+
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
                 .withIndices("cases")
-                .withQuery(queryStringQueryBuilder)
+                .withQuery(queryBuilder)
                 .withPageable(PageRequest.of(page, 10))
                 .build();
 

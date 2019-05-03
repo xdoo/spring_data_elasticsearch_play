@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -68,7 +69,7 @@ public class CaseServiceSpringTest {
         this.caseRepository.save(case03);
 
 
-        Page<Case> cases01 = this.searchService.search("Foo", 0);
+        Page<Case> cases01 = this.searchService.search("Foo", 0, new HashMap<>());
 
         assertThat(cases01.getTotalElements(), is(equalTo(2L)));
     }
