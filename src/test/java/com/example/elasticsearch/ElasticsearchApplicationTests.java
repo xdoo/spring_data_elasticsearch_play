@@ -483,7 +483,7 @@ public class ElasticsearchApplicationTests {
         LocalDate startDate =  input.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         // initialer start
-        startDate = startDate.plusMonths(ThreadLocalRandom.current().nextInt(minDelay, maxDelay));
+        startDate = startDate.plusDays(ThreadLocalRandom.current().nextInt(minDelay, maxDelay));
 
         for(int i = 0; i < cnt; i++) {
             int plus = ThreadLocalRandom.current().nextInt(min, max);
