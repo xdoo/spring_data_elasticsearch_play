@@ -80,7 +80,7 @@ public class SearchService {
         // Filter
         String myCaseFilter = (String) filters.get(MY_CASE_FILTER);
         if(!Strings.isNullOrEmpty(myCaseFilter)) {
-            queryBuilder.filter(termQuery("owner.id", myCaseFilter));
+            queryBuilder.filter(termQuery("advisor.id", myCaseFilter));
         }
 
         NativeSearchQuery searchQuery = new NativeSearchQueryBuilder()
