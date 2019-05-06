@@ -232,8 +232,13 @@ public class ElasticsearchApplicationTests {
             try {
                 Address address = this.createAddress(p[0], p[1]);
                 // prüfen, ob der Punkt an einer Strasse und innerhalb von München liegt
-                if(!Strings.isNullOrEmpty(address.getStreet()) && address.getCity().equals("München")) {
+                if(
+                        !Strings.isNullOrEmpty(address.getStreet())
+                                && !Strings.isNullOrEmpty(address.getSublocality())
+                                && !Strings.isNullOrEmpty(address.getPostalCode())
+                                && address.getCity().equals("München")) {
                     addresses.add(address);
+                    log.info("Adresse aufgenommen -> {} ", address.toString());
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -241,7 +246,7 @@ public class ElasticsearchApplicationTests {
 
         });
 
-        log.info("Es wurden {} gültige Münchner Adressen gefunden.", addresses.size());
+        log.info("\n\n-------\nEs wurden {} gültige Münchner Adressen gefunden.", addresses.size());
 
         int cnt = 0;
 	    for(Address address : addresses) {
@@ -295,7 +300,7 @@ public class ElasticsearchApplicationTests {
             }
 
             int x = ThreadLocalRandom.current().nextInt(1, 20);
-            List<Date> dates = this.createDateLine("01.06.2017", x, 5, 100);
+            List<Date> dates = this.createDateLine("01.06.2014", x, 1, 100, 1, 1200);
             List<Task> tasks = this.randomTasks(dates, advisor, finished);
 
             aCase.getTasks().addAll(tasks);
@@ -353,7 +358,7 @@ public class ElasticsearchApplicationTests {
         advisor3.setShorthandSymbol("PME");
         advisor3.setId(this.advisorIds.get(2));
 
-        List<Date> dateList =  this.createDateLine("13.10.2017", 15, 5, 60);
+        List<Date> dateList =  this.createDateLine("13.10.2017", 15, 2, 60, 1, 500);
         List<Task> tasks = this.randomTasks(dateList, advisor3, false);
         tasks.forEach(t -> {
             log.info("Task: " + t.toString());
@@ -472,10 +477,13 @@ public class ElasticsearchApplicationTests {
         return  dateFormat.format(date);
     }
 
-    private List<Date> createDateLine(String start, int cnt, int min, int max) {
+    private List<Date> createDateLine(String start, int cnt, int min, int max, int minDelay, int maxDelay) {
         List<Date> dates = new ArrayList<>();
         Date input = this.parseDate(start);
         LocalDate startDate =  input.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        // initialer start
+        startDate = startDate.plusMonths(ThreadLocalRandom.current().nextInt(minDelay, maxDelay));
 
         for(int i = 0; i < cnt; i++) {
             int plus = ThreadLocalRandom.current().nextInt(min, max);
@@ -660,7 +668,7 @@ public class ElasticsearchApplicationTests {
                 address.setPostalCode(a.longName);
             }
         }
-        log.info("Address for {} / {} -> {}", lat, lng, address.toString());
+//        log.info("Address for {} / {} -> {}", lat, lng, address.toString());
 
 	    return address;
     }
