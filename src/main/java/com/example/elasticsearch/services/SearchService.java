@@ -79,7 +79,7 @@ public class SearchService {
 
         // Filter
         String myCaseFilter = (String) filters.get(MY_CASE_FILTER);
-        if(!Strings.isNullOrEmpty(myCaseFilter)) {
+        if(this.checkStringFilter(myCaseFilter)) {
             queryBuilder.filter(termQuery("advisor.id", myCaseFilter));
         }
 
@@ -271,5 +271,17 @@ public class SearchService {
             queryBuilder.append(words[i]).append("* ");
         }
         return queryBuilder.toString();
+    }
+
+    public boolean checkStringFilter(String value) {
+        if(Strings.isNullOrEmpty(value)) {
+            return false;
+        }
+
+        if(value.trim().toLowerCase().equals("_")) {
+            return false;
+        }
+
+        return true;
     }
 }

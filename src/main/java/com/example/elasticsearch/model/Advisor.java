@@ -20,10 +20,10 @@ public class Advisor {
     @Id
     @Field(type = FieldType.Keyword)
     String id;
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Keyword)
     @NonNull
     String firstname;
-    @Field(type = FieldType.Text)
+    @Field(type = FieldType.Keyword)
     @NonNull
     String lastname;
     @Field(type = FieldType.Keyword)
