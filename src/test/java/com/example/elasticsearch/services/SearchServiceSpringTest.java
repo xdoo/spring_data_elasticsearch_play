@@ -15,7 +15,7 @@ import java.util.HashMap;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ActiveProfiles(profiles = "demo")
+//@ActiveProfiles(profiles = "demo")
 @Slf4j
 public class SearchServiceSpringTest {
 
