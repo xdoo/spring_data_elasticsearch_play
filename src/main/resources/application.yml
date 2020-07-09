@@ -14,7 +14,7 @@ spring:
   profiles: demo
 
 elasticsearch:
-  password: utz1kuxw98
-  user: h8amddgsal
-  host: lhm-search-demo-4880040604.eu-west-1.bonsaisearch.net
+  password: 
+  user: 
+  host: 
   port: 443
